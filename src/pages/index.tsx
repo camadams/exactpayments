@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/prefer-for-of */
-import { error } from "console";
-import Link from "next/link";
 import React, { useState } from "react";
 import Spreadsheet from "~/components/Spreadsheet";
-import { EmailTemplate, EmailTemplateProps, InvoiceLine } from "~/components/email-template";
+import { EmailTemplate, type EmailTemplateProps } from "~/components/email-template";
 import Nav from "~/components/nav";
 import generatePDF from "~/utils/generatePDF";
 
@@ -44,7 +42,7 @@ const App = ({ data }: { data: number[][] }) => {
       grandTotal += newLine.total;
     }
     billResult.grandTotal = grandTotal;
-    setBillResultt((prev) => billResult);
+    setBillResultt(() => billResult);
     // const line = `${accum[1]} X Almond Cros @ R${almPrice} = R${accum[1]! * almPrice} \n ${accum[2]} X Cinna Twist @ R${almPrice} = R${accum[2]! * cinnaPrice}`;
     setHasBilled(true);
   };

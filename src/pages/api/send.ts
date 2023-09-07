@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Resend } from 'resend';
 import type { CreateEmailOptions } from 'resend/build/src/emails/interfaces';
-import { EmailTemplate, EmailTemplateProps } from '~/components/email-template';
+import { EmailTemplate, type EmailTemplateProps } from '~/components/email-template';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ChangeEvent, RefObject } from "react";
+import React, { useState, useEffect, type ChangeEvent } from "react";
 
 interface Cell {
   row: number;
@@ -23,7 +23,7 @@ type Grid = number[][]; // Define your grid data type
 function GridTable() {
   const [grid, setGrid] = useState<Grid>([[...new Array<number>(customers.length * products.length).fill(0)], [...new Array<number>(customers.length * products.length).fill(0)]]);
   const [activeCell, setActiveCell] = useState<Cell>({ row: -1, col: -1 });
-  const tableRef: RefObject<HTMLTableElement> = React.createRef();
+  // const tableRef: RefObject<HTMLTableElement> = React.createRef();
 
   useEffect(() => {
     const handleArrowKeys = (event: KeyboardEvent) => {

@@ -7,6 +7,7 @@ const generatePDF = (document: Document, outputPath: string): void => {
     // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
     const capture = document.querySelector(".actual-receipt") as HTMLElement;
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const canvas = html2canvas(capture).then((canvas) => {
 
         const imgData = canvas.toDataURL('image/png');

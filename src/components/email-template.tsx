@@ -1,6 +1,4 @@
 import { Img, Tailwind } from "@react-email/components";
-import Image from "next/image";
-import { type } from "os";
 import * as React from "react";
 
 export interface InvoiceLine {
