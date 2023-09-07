@@ -95,7 +95,9 @@ export default App;
 
 async function sendEmail(billResultt: EmailTemplateProps): Promise<void> {
   // // Send a POST request with the JSON data in the request body
-  await fetch("http://localhost:3000/api/send", {
+
+  const url = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/api/send` : "http://localhost:3000/api/send";
+  await fetch(url, {
     method: "POST", // You may need to adjust the HTTP method based on your server API
     headers: {
       "Content-Type": "application/json",

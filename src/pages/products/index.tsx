@@ -1,5 +1,4 @@
 import Nav from "~/components/nav";
-import Icon from "@mui/material/Icon";
 
 const products = [
   { id: 1, name: "Almond Croisant", unitPrice: 18 },
