@@ -5,6 +5,7 @@ import Spreadsheet from "~/components/Spreadsheet";
 import { EmailTemplate, type EmailTemplateProps } from "~/components/email-template";
 import Nav from "~/components/nav";
 import generatePDF from "~/utils/generatePDF";
+import POST from "./api/sendd";
 
 const App = ({ data }: { data: number[][] }) => {
   const [hasBilled, setHasBilled] = useState(false);
@@ -48,13 +49,9 @@ const App = ({ data }: { data: number[][] }) => {
   };
 
   async function handleClick(): Promise<void> {
-    try {
-      await sendEmail(billResult);
-      alert("email sent!");
-    } catch (error) {
-      alert(error);
-      console.error(error);
-    }
+    await sendEmail(billResult)
+      .then((x) => alert(x))
+      .catch((err) => alert(err));
   }
 
   return (
@@ -96,14 +93,15 @@ export default App;
 async function sendEmail(billResultt: EmailTemplateProps): Promise<void> {
   // // Send a POST request with the JSON data in the request body
 
-  const url = process.env.VERCEL_URL ? `http://${process.env.VERCEL_URL}/api/send` : "http://localhost:3000/api/send";
-  await fetch(url, {
-    method: "POST", // You may need to adjust the HTTP method based on your server API
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ ...billResultt }),
-  });
+  // const url = "/api/sendd";
+  await POST(JSON.stringify({ ...billResultt }));
+  // await fetch(url, {
+  //   method: "POST", // You may need to adjust the HTTP method based on your server API
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //   },
+  //   body: JSON.stringify({ ...billResultt }),
+  // });
 
   // await fetch("http://localhost:3000/api/send");
 }

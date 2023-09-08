@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 
-export default async function POST() {
+export default async function POST(a: string) {
     const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -14,8 +14,8 @@ export default async function POST() {
         body: JSON.stringify({
             from: "Acme <onboarding@resend.dev>",
             to: ["delivered@resend.dev"],
-            subject: "hello world",
-            html: "<strong>it works!</strong>",
+            subject: "new route",
+            html: a,
         }),
     });
 
