@@ -48,8 +48,42 @@ const App = ({ data }: { data: number[][] }) => {
     setHasBilled(true);
   };
 
-  async function handleClick(): Promise<void> {
-    await sendEmail(billResult)
+  async function handleClickTheirApiButNotMyRoute(): Promise<void> {
+    // await sendEmail(billResult)
+    //   .then((x) => alert(x))
+    //   .catch((err) => alert(err));
+
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: "Acme <onboarding@resend.dev>",
+        to: ["delivered@resend.dev"],
+        subject: "handleClickk",
+        html: JSON.stringify({ ...billResult }),
+      }),
+    })
+      .then((x) => console.log(x))
+      .catch((err) => console.log(err));
+  }
+
+  async function handleClickMe(): Promise<void> {
+    await fetch("http://localhost:3000/api/send", {
+      method: "POST", // You may need to adjust the HTTP method based on your server API
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ...billResult }),
+    })
+      .then((x) => alert(x))
+      .catch((err) => alert(err));
+  }
+
+  async function handleClickEdge(): Promise<void> {
+    await POST(billResult)
       .then((x) => alert(x))
       .catch((err) => alert(err));
   }
@@ -67,8 +101,14 @@ const App = ({ data }: { data: number[][] }) => {
               <button className="text-sm rounded-lg bg-green-400 hover:bg-green-700 hover:text-gray-100 w-20" onClick={() => generatePDF(document, "sample.pdf")}>
                 Download Pdf
               </button>
-              <button className="rounded-lg bg-green-400 hover:bg-green-700 hover:text-gray-100 w-20" onClick={handleClick}>
-                Send
+              <button className="rounded-lg bg-green-400 hover:bg-green-700 hover:text-gray-100 w-20" onClick={handleClickMe}>
+                Send me
+              </button>{" "}
+              <button className="rounded-lg bg-green-400 hover:bg-green-700 hover:text-gray-100 w-20" onClick={handleClickEdge}>
+                Send edge
+              </button>{" "}
+              <button className="rounded-lg bg-green-400 hover:bg-green-700 hover:text-gray-100 w-20" onClick={handleClickTheirApiButNotMyRoute}>
+                SendTheirApiButNotInMyRoute
               </button>
             </>
           ) : (
@@ -90,21 +130,21 @@ const App = ({ data }: { data: number[][] }) => {
 };
 export default App;
 
-async function sendEmail(billResultt: EmailTemplateProps): Promise<void> {
-  // // Send a POST request with the JSON data in the request body
+// async function sendEmail(billResultt: string): Promise<void> {
+//   // // Send a POST request with the JSON data in the request body
 
-  // const url = "/api/sendd";
-  await POST(JSON.stringify({ ...billResultt }));
-  // await fetch(url, {
-  //   method: "POST", // You may need to adjust the HTTP method based on your server API
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //   },
-  //   body: JSON.stringify({ ...billResultt }),
-  // });
+//   // const url = "/api/sendd";
+//   // await POST(JSON.stringify({ ...billResultt }));
+//   await fetch("http://localhost:3000/api/send", {
+//     method: "POST", // You may need to adjust the HTTP method based on your server API
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(billResultt),
+//   });
 
-  // await fetch("http://localhost:3000/api/send");
-}
+//   // await fetch("http://localhost:3000/api/send");
+// }
 
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function getServerSideProps() {

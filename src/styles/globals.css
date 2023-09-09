@@ -15,8 +15,3 @@ body {
       margin: 0;
     }
   }
-
- @layer body {
-    overflow-y: auto;
-    scrollbar-gutter: stable;
-  }
