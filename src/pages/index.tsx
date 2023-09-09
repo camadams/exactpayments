@@ -82,6 +82,18 @@ const App = ({ data }: { data: number[][] }) => {
       .catch((err) => alert(err));
   }
 
+  async function handleClickMeVercel(): Promise<void> {
+    await fetch("https://sheetspro.vercel.app/api/send", {
+      method: "POST", // You may need to adjust the HTTP method based on your server API
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ...billResult }),
+    })
+      .then((x) => alert(x))
+      .catch((err) => alert(err));
+  }
+
   async function handleClickEdge(): Promise<void> {
     await POST(billResult)
       .then((x) => alert(x))
@@ -109,6 +121,9 @@ const App = ({ data }: { data: number[][] }) => {
               </button>{" "}
               <button className="rounded-lg bg-green-400 hover:bg-green-700 hover:text-gray-100 w-20" onClick={handleClickTheirApiButNotMyRoute}>
                 SendTheirApiButNotInMyRoute
+              </button>
+              <button className="rounded-lg bg-green-400 hover:bg-green-700 hover:text-gray-100 w-20" onClick={handleClickMeVercel}>
+                Vercel url send
               </button>
             </>
           ) : (

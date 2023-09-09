@@ -6,6 +6,7 @@ import { EmailTemplate, type EmailTemplateProps } from '~/components/email-templ
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const a = async (req: NextApiRequest, res: NextApiResponse) => {
+    alert(process.env.VERCEL);
     try {
         const data = await resend.emails.send({
             from: 'Acme <onboarding@resend.dev>',
