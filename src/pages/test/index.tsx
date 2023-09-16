@@ -5,7 +5,6 @@ import { bill, initialBillResult, initialSpreadSheet, products, sendEmail } from
 import Nav from "~/components/nav";
 import { EmailTemplate, type EmailTemplateProps } from "~/components/email-template";
 import generatePDF from "~/utils/generatePDF";
-import { env } from "~/env.mjs";
 
 function Home() {
   const [hasBilled, setHasBilled] = useState(false);
@@ -16,8 +15,6 @@ function Home() {
     setBillResultt(() => bill(spreadSheet, products, billResult));
     setHasBilled(true);
   };
-
-  console.log(`${env.NODE_ENV === "development" ? "http://localhost:3000" : "https://sheetspro.vercel.app"}/api/send`);
 
   // const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
 

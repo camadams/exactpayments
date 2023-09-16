@@ -7,7 +7,6 @@ import Nav from "~/components/nav";
 import type { Sale, SpreadSheet } from "~/components/spreadsheet2";
 import { api } from "~/utils/api";
 import generatePDF from "~/utils/generatePDF";
-import { env } from "~/env.mjs";
 
 export const customers = [
   { name: "Cust 1", emailAddress: "hangten@gmail.com" },
@@ -87,7 +86,7 @@ export const initialBillResult = {
 } as EmailTemplateProps;
 
 export async function sendEmail(billResult: EmailTemplateProps): Promise<void> {
-  await fetch(`${env.NODE_ENV === "development" ? "http://localhost:3000" : "https://sheetspro.vercel.app"}/api/send`, {
+  await fetch(`${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"}/api/send`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
