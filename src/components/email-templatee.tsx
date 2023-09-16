@@ -21,13 +21,13 @@ export interface EmailTemplateProps {
 //   </div>
 // );
 
-export const EmailTemplate = (billResult: EmailTemplateProps) => {
+export const EmailTemplatee = (billResult: EmailTemplateProps) => {
   return (
     <Tailwind>
       <div className="bg-gray-100 p-4 w-full mx-auto relative aspect-[1/1.41] ">
         {/* Logo in the top right-hand corner */}
 
-        <div style={{ position: "absolute", top: "2.5rem", right: "2.5rem" }}>
+        <div style={{ position: "absolute", top: "2.5rem", right: "2.5rem", margin: "1rem", width: "4rem", height: "4rem" }}>
           <Img src="/a.jpeg" alt="Company Logo" width="64" height="64" />
         </div>
 

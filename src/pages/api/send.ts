@@ -6,16 +6,16 @@ import { EmailTemplate, type EmailTemplateProps } from '~/components/email-templ
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const a = async (req: NextApiRequest, res: NextApiResponse) => {
-    console.log(process.env.VERCEL)
     try {
         const data = await resend.emails.send({
             from: 'Acme <onboarding@resend.dev>',
             to: ['camgadams@gmail.com'],
             subject: 'My route',
             react: EmailTemplate(req.body as EmailTemplateProps),
+            attachments: [{ path: 'C:/Users/Admin/Desktop/testsamplesend.pdf', filename: 'testsamplesend.pdf' }]
         } as CreateEmailOptions);
-
-        res.status(200).json(data);
+        console.log(data.id)
+        res.status(200).send(data.id);
     } catch (error) {
         res.status(400).json(error);
     }
