@@ -16,6 +16,8 @@ function Home() {
     setHasBilled(true);
   };
 
+  console.log(`${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"}/api/send`);
+
   // const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
 
   // const openModal = () => {
