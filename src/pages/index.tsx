@@ -7,21 +7,22 @@ import Nav from "~/components/nav";
 import type { Sale, SpreadSheet } from "~/components/spreadsheet2";
 import { api } from "~/utils/api";
 import generatePDF from "~/utils/generatePDF";
+import { env } from "~/env.mjs";
 
 export const customers = [
-  { name: "Hang Ten", emailAddress: "hangten@gmail.com" },
-  { name: "Surf Shack", emailAddress: "surfshack@gmail.com" },
-  { name: "Salt", emailAddress: "surfshack@gmail.com" },
-  { name: "Ohana", emailAddress: "surfshack@gmail.com" },
-  { name: "Blue Door", emailAddress: "surfshack@gmail.com" },
-  { name: "Blue Door", emailAddress: "surfshack@gmail.com" },
-  { name: "Blue Door", emailAddress: "surfshack@gmail.com" },
-  { name: "Blue Door", emailAddress: "surfshack@gmail.com" },
+  { name: "Cust 1", emailAddress: "hangten@gmail.com" },
+  { name: "Cust 2", emailAddress: "surfshack@gmail.com" },
+  { name: "Cust 3", emailAddress: "surfshack@gmail.com" },
+  { name: "Cust 4", emailAddress: "surfshack@gmail.com" },
+  { name: "Cust 5", emailAddress: "surfshack@gmail.com" },
+  { name: "Cust 6", emailAddress: "surfshack@gmail.com" },
+  { name: "Cust 7", emailAddress: "surfshack@gmail.com" },
+  { name: "Cust 8", emailAddress: "surfshack@gmail.com" },
 ];
 
 export const products = [
-  { name: "Almond Croisant", unitPrice: 18 },
-  { name: "Cinnamon Stick", unitPrice: 12 },
+  { name: "Product 1", unitPrice: 18 },
+  { name: "Product 2", unitPrice: 12 },
 ];
 
 export const initialSpreadSheet: SpreadSheet = {
@@ -86,7 +87,7 @@ export const initialBillResult = {
 } as EmailTemplateProps;
 
 export async function sendEmail(billResult: EmailTemplateProps): Promise<void> {
-  await fetch(`${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"}/api/send`, {
+  await fetch(`${env.NODE_ENV === "development" ? "http://localhost:3000" : "https://sheetspro.vercel.app"}/api/send`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -112,7 +113,7 @@ const App = ({ data }: { data: SpreadSheet }) => {
       <Nav />
 
       <div className="w-full flex flex-col items-center justify-center">
-        <h1 className="mb-4 text-2xl font-bold">HangTen September</h1>
+        <h1 className="mb-4 text-2xl font-bold">September</h1>
         {/* <SpreadSheetComponent initialSpreadSheet={data} /> */}
         <div className="flex gap-4 my-4">
           {hasBilled ? (

@@ -1,25 +1,10 @@
 import React, { useState, useEffect, type ChangeEvent } from "react";
+import { customers, products } from "~/pages";
 
 interface Cell {
   row: number;
   col: number;
 }
-
-const products = [
-  { name: "Almond Croisant", unitPrice: 18 },
-  { name: "Cinnamon Stick", unitPrice: 12 },
-];
-
-const customers = [
-  { name: "Hang Ten", emailAddress: "hangten@gmail.com" },
-  { name: "Surf Shack", emailAddress: "surfshack@gmail.com" },
-  { name: "Salt", emailAddress: "surfshack@gmail.com" },
-  { name: "Ohana", emailAddress: "surfshack@gmail.com" },
-  { name: "Blue Door", emailAddress: "surfshack@gmail.com" },
-  { name: "Blue Door", emailAddress: "surfshack@gmail.com" },
-  { name: "Blue Door", emailAddress: "surfshack@gmail.com" },
-  { name: "Blue Door", emailAddress: "surfshack@gmail.com" },
-];
 
 export interface Sale {
   quantity: number;
