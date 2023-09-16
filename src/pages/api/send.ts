@@ -12,7 +12,6 @@ const a = async (req: NextApiRequest, res: NextApiResponse) => {
             to: ['camgadams@gmail.com'],
             subject: 'My route',
             react: EmailTemplate(req.body as EmailTemplateProps),
-            attachments: [{ path: 'C:/Users/Admin/Desktop/testsamplesend.pdf', filename: 'testsamplesend.pdf' }]
         } as CreateEmailOptions);
         console.log(data.id)
         res.status(200).send(data.id);
