@@ -4,7 +4,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
-export const salesRouter = createTRPCRouter({
+export const saleRouter = createTRPCRouter({
   // hello: publicProcedure
   //   .input(z.object({ text: z.string() }))
   //   .query(({ input }) => {

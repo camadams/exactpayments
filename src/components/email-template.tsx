@@ -8,7 +8,7 @@ export interface InvoiceLine {
   total: number;
 }
 
-export interface EmailTemplateProps {
+export interface BillResult {
   firstName: string;
   customerEmail: string;
   invoiceLines: InvoiceLine[];
@@ -21,14 +21,14 @@ export interface EmailTemplateProps {
 //   </div>
 // );
 
-export const EmailTemplate = (billResult: EmailTemplateProps) => {
+export const EmailTemplate = (billResult: BillResult) => {
   return (
     <Tailwind>
       <div className="bg-gray-100 p-4 w-full mx-auto relative aspect-[1/1.41] ">
         {/* Logo in the top right-hand corner */}
 
         <div style={{ position: "absolute", top: "2.5rem", right: "2.5rem" }}>
-          <Img src="/a.jpeg" alt="Company Logo" width="64" height="64" />
+          <Img src="/a.png" alt="Company Logo" width="200" height="200" />
         </div>
 
         <div className="bg-white p-8 rounded-lg h-full">
@@ -38,11 +38,11 @@ export const EmailTemplate = (billResult: EmailTemplateProps) => {
               <div className="mb-2">
                 <p className="text-gray-600">Invoice From:</p>
                 <address className="">
-                  Emz Vegan Baking
+                  Emz Bakery
                   <br />
-                  emzveganbaking@email.com
+                  info@emzbakery.com
                   <br />
-                  +27 83 456-7890
+                  +27 11 123-4567
                 </address>
               </div>
             </div>

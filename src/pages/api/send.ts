@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Resend } from 'resend';
 import type { CreateEmailOptions } from 'resend/build/src/emails/interfaces';
-import { EmailTemplate, type EmailTemplateProps } from '~/components/email-template';
+import { EmailTemplate, type BillResult } from '~/components/email-template';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -11,7 +11,7 @@ const a = async (req: NextApiRequest, res: NextApiResponse) => {
             from: 'Acme <onboarding@resend.dev>',
             to: ['camgadams@gmail.com'],
             subject: 'My route',
-            react: EmailTemplate(req.body as EmailTemplateProps),
+            react: EmailTemplate(req.body as BillResult),
         } as CreateEmailOptions);
         console.log(data.id)
         res.status(200).send(data.id);

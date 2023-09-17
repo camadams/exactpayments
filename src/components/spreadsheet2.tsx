@@ -1,5 +1,6 @@
+import { format } from "date-fns";
 import React, { useState, useEffect, type ChangeEvent } from "react";
-import { customers, products } from "~/pages";
+import { customers, products } from "~/utils/businessLogic";
 
 interface Cell {
   row: number;
@@ -119,7 +120,7 @@ const App = ({ spreadSheet, setSpreadSheet }: SpreadSheetProps) => {
         <div className="w-1/12 bg-red-100 flex flex-col justify-end">
           {[...spreadSheet.rows].map((sheetRow, j) => (
             <div key={j} className="flex bg-red-200 h-[33px] p-1 border-b border-white text-sm" /*style={{ width: `${100 / customers.length}%` }}*/>
-              {/* {sheetRow.date.toString()} */}
+              {format(sheetRow.date, "dd/MM eee")}
             </div>
           ))}
         </div>

@@ -1,9 +1,5 @@
 import Nav from "~/components/nav";
-
-const products = [
-  { id: 1, name: "Almond Croisant", unitPrice: 18 },
-  { id: 2, name: "Cinamon Stick", unitPrice: 12 },
-];
+import { products } from "~/utils/businessLogic";
 
 const Products = () => {
   return (
@@ -13,7 +9,7 @@ const Products = () => {
         <table className="border-collapse w-full text-left">
           <thead>
             <tr className="border-b border-gray-600">
-              <th className="text-bold p-2">Id</th>
+              {/* <th className="text-bold p-2">Id</th> */}
               <th className="text-bold p-2">Name</th>
               <th className="text-bold p-2">Unit Price</th>
               <th className="p-2"></th> {/* You can add your Icon here */}
@@ -22,7 +18,7 @@ const Products = () => {
           <tbody>
             {products.map((product, i) => (
               <tr key={i} className="border-b border-gray-600">
-                <td className="p-2 ">{product.id}</td>
+                {/* <td className="p-2 ">{product.id}</td> */}
                 <td className="p-2">{product.name}</td>
                 <td className="p-2">R{product.unitPrice}</td>
               </tr>
