@@ -115,20 +115,11 @@ const App = ({ spreadSheet, setSpreadSheet }: SpreadSheetProps) => {
   const numOfCustomers = new Array<number>(customers.length);
   return (
     <div className="bg-gray-400 ">
-      <div className="flex ">
-        {/* Vertical Date Bar */}
-        <div className="w-1/12 bg-red-100 flex flex-col justify-end">
-          {[...spreadSheet.rows].map((sheetRow, j) => (
-            <div key={j} className="flex bg-red-200 h-[33px] p-1 border-b border-white text-sm" /*style={{ width: `${100 / customers.length}%` }}*/>
-              {format(sheetRow.date, "dd/MM eee")}
-            </div>
-          ))}
-        </div>
-
-        {/* Sheet Content */}
-        <div className=" w-full" style={{ overflowX: "auto", scrollbarGutter: "stable" }}>
-          {/* Frozen Header */}
-          <div className="pr-4" style={{ scrollbarGutter: "stable" }}>
+      {/* Frozen Header */}
+      <div className=" w-full" style={{ overflowX: "auto" }}>
+        <div className="flex">
+          <div style={{ width: `${100 / (customers.length * products.length)}%` }}></div>
+          <div className="pr-4 w-full" style={{ scrollbarGutter: "stable" }}>
             <div className="flex ">
               {customers.map((customer, i) => (
                 <div key={i} className="border  w-full">
@@ -148,38 +139,39 @@ const App = ({ spreadSheet, setSpreadSheet }: SpreadSheetProps) => {
               ))}
             </div>
           </div>
+        </div>
 
-          {/* The actual Sales */}
-          <div className="table-container" style={{ overflowY: "auto", maxHeight: "600px" }}>
-            <table className="table-fixed border-collapse border data-table w-full">
-              <tbody>
-                {spreadSheet.rows.map((row, rowIndex) => (
-                  <tr key={rowIndex}>
-                    {row.sales.map((sale, colIndex) => (
-                      <td
-                        key={colIndex}
-                        className={`border p-1 ${Math.floor(colIndex / products.length) % products.length === 0 ? "bg-zinc-500" : ""} `}
-                        onClick={() => handleCellClick(rowIndex, colIndex)}
-                      >
-                        {activeCell.row === rowIndex && activeCell.col === colIndex ? (
-                          <input
-                            className="focus:outline-none appearance-none bg-gray-400 w-full"
-                            type="number"
-                            value={sale.quantity}
-                            onChange={(e) => handleCellValueChange(e, rowIndex, colIndex)}
-                            // onBlur={() => handleOnBlur()}
-                            autoFocus
-                          />
-                        ) : (
-                          <span>{sale.quantity}</span>
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        {/* The actual Sales */}
+        <div className="table-container" style={{ overflowY: "auto", maxHeight: "600px" }}>
+          <table className="table-fixed border-collapse border data-table w-full">
+            <tbody>
+              {spreadSheet.rows.map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  <td className={`text-[13px] ${row.date.getDay() === 1 ? "bg-red-200" : ""}`}>{format(row.date, "eee d MMM")}</td>
+                  {row.sales.map((sale, colIndex) => (
+                    <td
+                      key={colIndex}
+                      className={`border p-1 ${Math.floor(colIndex / products.length) % products.length === 0 ? "bg-zinc-500" : ""} `}
+                      onClick={() => handleCellClick(rowIndex, colIndex)}
+                    >
+                      {activeCell.row === rowIndex && activeCell.col === colIndex ? (
+                        <input
+                          className="focus:outline-none appearance-none bg-gray-400 w-full"
+                          type="number"
+                          value={sale.quantity}
+                          onChange={(e) => handleCellValueChange(e, rowIndex, colIndex)}
+                          // onBlur={() => handleOnBlur()}
+                          autoFocus
+                        />
+                      ) : (
+                        <span>{sale.quantity}</span>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

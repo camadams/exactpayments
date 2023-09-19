@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import { EmailTemplate, type BillResult as BillResult, InvoiceLine } from "~/components/email-template";
 import Nav from "~/components/nav";
 import type { Sale, SpreadSheet } from "~/components/spreadsheet2";
-import { api } from "~/utils/api";
 import generatePDF from "~/utils/generatePDF";
+import { api } from "./api";
 
 
 
@@ -27,25 +27,36 @@ export const products = [
 
 export const initialSpreadSheet: SpreadSheet = {
     rows: [
-        { date: new Date(), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-        { date: addDays(new Date(), 1), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-        { date: addDays(new Date(), 2), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-        { date: addDays(new Date(), 3), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-        { date: addDays(new Date(), 4), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-        { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-        { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-        { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-        { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-        { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-        { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-        { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-        { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-        { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-        { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-        { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-        { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-        { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-        { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 1), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 2), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 3), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 4), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 6), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 7), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 8), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 9), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 10), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 11), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 12), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 13), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 14), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 15), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 16), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 17), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 18), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 18), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 19), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 20), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 21), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 22), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 23), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 24), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 25), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 26), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 27), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 29), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 30), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
     ],
 };
 

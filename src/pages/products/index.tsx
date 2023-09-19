@@ -1,7 +1,10 @@
 import Nav from "~/components/nav";
+import { api } from "~/utils/api";
 import { products } from "~/utils/businessLogic";
 
 const Products = () => {
+  const { data } = api.example.getAll.useQuery();
+  console.log(data);
   return (
     <div className="flex w-full h-screen">
       <Nav />
