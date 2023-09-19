@@ -1,4 +1,4 @@
-import { RouterOutputs, api } from "~/utils/api";
+import { type RouterOutputs, api } from "~/utils/api";
 import format from "date-fns/format";
 import { GetServerSideProps } from "next";
 import { useEffect } from "react";

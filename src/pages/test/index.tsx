@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import SpreadSheetComponent, { type SpreadSheet } from "~/components/spreadsheet2";
 import { bill, initialBillResult, initialSpreadSheet, products, sendEmail } from "~/utils/businessLogic";
 import Nav from "~/components/nav";
-import { BillResult, EmailTemplate } from "~/components/email-template";
+import { type BillResult, EmailTemplate } from "~/components/email-template";
 import generatePDF from "~/utils/generatePDF";
 import { InvoicesPreview } from "~/components/InvoicesPreview";
 

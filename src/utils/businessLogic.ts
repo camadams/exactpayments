@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/prefer-for-of */
 import { addDays } from "date-fns";
 import React, { useState } from "react";
-import { EmailTemplate, type BillResult as BillResult, InvoiceLine } from "~/components/email-template";
+import { EmailTemplate, type BillResult as BillResult, type InvoiceLine } from "~/components/email-template";
 import Nav from "~/components/nav";
 import type { Sale, SpreadSheet } from "~/components/spreadsheet2";
 import generatePDF from "~/utils/generatePDF";

@@ -1,4 +1,4 @@
-import { BillResult, EmailTemplate } from "./email-template";
+import { type BillResult, EmailTemplate } from "./email-template";
 import { useState } from "react";
 
 export const InvoicesPreview = ({ billResults }: { billResults: BillResult[] }) => {
