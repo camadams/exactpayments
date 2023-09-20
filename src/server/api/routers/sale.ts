@@ -1,4 +1,5 @@
 
+import { z } from "zod";
 import {
   createTRPCRouter,
   publicProcedure,
@@ -12,6 +13,12 @@ export const saleRouter = createTRPCRouter({
   //       greeting: `Hello ${input.text}`,
   //     };
   //   }),
+
+  getAllSalesAfterToDateAndBeforeFromDate: publicProcedure
+    .input(z.object({ to: z.date(), from: z.date() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.example.findMany({ where: { createdAt: { gte: input.from, lte: input.to } } });
+    }),
 
   getAll: publicProcedure.query(({ ctx }) => {
     const a = ctx.prisma.example.findMany();

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
-import { format } from "date-fns";
+import { compareAsc, format } from "date-fns";
 import React, { useState, useEffect, type ChangeEvent } from "react";
 import { type DateRange } from "react-day-picker";
 import { type SheetRow, type SpreadSheet, customers, products } from "~/utils/businessLogic";
@@ -111,9 +111,11 @@ export default function App({ spreadSheet, setSpreadSheet, date }: SpreadSheetPr
         <div className="table-container" style={{ overflowY: "auto", maxHeight: "700px", scrollbarGutter: "stable" }}>
           <table className="w-full border border-collapse table-fixed data-table">
             <tbody>
-              {spreadSheet.rows.map((row, rowIndex) => (
-                <Row key={rowIndex} rowIndex={rowIndex} row={row} />
-              ))}
+              {spreadSheet.rows
+                .filter((row) => compareAsc(row.date, date?.from!) >= 0 && compareAsc(date?.to!, row.date) >= 0)
+                .map((row, rowIndex) => (
+                  <Row key={rowIndex} rowIndex={rowIndex} row={row} />
+                ))}
             </tbody>
           </table>
         </div>
