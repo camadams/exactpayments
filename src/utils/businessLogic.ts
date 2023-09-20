@@ -1,13 +1,5 @@
 /* eslint-disable @typescript-eslint/prefer-for-of */
-import { addDays } from "date-fns";
-import React, { useState } from "react";
-import { EmailTemplate, type BillResult as BillResult, type InvoiceLine } from "~/components/email-template";
-import Nav from "~/components/nav";
-import type { Sale, SpreadSheet } from "~/components/spreadsheet2";
-import generatePDF from "~/utils/generatePDF";
-import { api } from "./api";
-
-
+import { type BillResult as BillResult, type InvoiceLine } from "~/components/email-template";
 
 export const customers = [
     { name: "Customer 1", emailAddress: "customer1@gmail.com" },
@@ -24,6 +16,20 @@ export const products = [
     { name: "Product 1", unitPrice: 18 },
     { name: "Product 2", unitPrice: 12 },
 ];
+
+
+export interface Sale {
+    quantity: number;
+}
+
+export interface SheetRow {
+    date: Date;
+    sales: Sale[];
+}
+
+export interface SpreadSheet {
+    rows: SheetRow[];
+}
 
 export const initialSpreadSheet: SpreadSheet = {
     rows: [
@@ -55,6 +61,7 @@ export const initialSpreadSheet: SpreadSheet = {
         { date: new Date(2023, 9, 25), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
         { date: new Date(2023, 9, 26), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
         { date: new Date(2023, 9, 27), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
+        { date: new Date(2023, 9, 28), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
         { date: new Date(2023, 9, 29), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
         { date: new Date(2023, 9, 30), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
     ],

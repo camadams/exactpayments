@@ -1,7 +1,6 @@
 // Import React and any other necessary dependencies
 
 import { useEffect, useState } from "react";
-import { CalendarDateRangePicker } from "~/components/date-range-picker";
 import { api, type RouterOutputs } from "~/utils/api";
 
 type Example = RouterOutputs["example"]["getAll"];
@@ -31,9 +30,7 @@ function YourComponent(propps: Resp) {
   return (
     <>
       <div>{isLoading ? <div>Loading</div> : <div>{data?.[0]?.id}</div>}</div>
-      <div>
-        <CalendarDateRangePicker />
-      </div>
+      <div>{/* <CalendarDateRangePicker /> */}</div>
     </>
   );
 }

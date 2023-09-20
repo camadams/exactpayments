@@ -1,31 +1,21 @@
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 import { format } from "date-fns";
 import React, { useState, useEffect, type ChangeEvent } from "react";
-import { customers, products } from "~/utils/businessLogic";
+import { type DateRange } from "react-day-picker";
+import { type SheetRow, type SpreadSheet, customers, products } from "~/utils/businessLogic";
 
 interface Cell {
   row: number;
   col: number;
 }
 
-export interface Sale {
-  quantity: number;
-}
-
-export interface SheetRow {
-  date: Date;
-  sales: Sale[];
-}
-
-export interface SpreadSheet {
-  rows: SheetRow[];
-}
-
 interface SpreadSheetProps {
   spreadSheet: SpreadSheet;
   setSpreadSheet: React.Dispatch<React.SetStateAction<SpreadSheet>>;
+  date: DateRange | undefined;
 }
 
-const App = ({ spreadSheet, setSpreadSheet }: SpreadSheetProps) => {
+export default function App({ spreadSheet, setSpreadSheet, date }: SpreadSheetProps) {
   // const [spreadSheet, setSpreadSheet] = useState<SpreadSheet>(spreadSheet);
   const [activeCell, setActiveCell] = useState<Cell>({ row: -1, col: -1 });
   // const tableRef: RefObject<HTMLTableElement> = React.createRef();
@@ -113,62 +103,16 @@ const App = ({ spreadSheet, setSpreadSheet }: SpreadSheetProps) => {
 
   // const x = [0, 0, 0, 0];
   const numOfCustomers = new Array<number>(customers.length);
-  return (
-    <div className="bg-gray-400 ">
-      {/* Frozen Header */}
-      <div className=" w-full" style={{ overflowX: "auto" }}>
-        <div className="flex">
-          <div style={{ width: `${100 / (customers.length * products.length)}%` }}></div>
-          <div className="pr-4 w-full" style={{ scrollbarGutter: "stable" }}>
-            <div className="flex ">
-              {customers.map((customer, i) => (
-                <div key={i} className="border  w-full">
-                  {customer.name}
-                </div>
-              ))}
-            </div>
-            <div className="flex">
-              {[...numOfCustomers].map((_, j) => (
-                <div key={j} className="flex" style={{ width: `${100 / customers.length}%` }}>
-                  {products.map((product, i) => (
-                    <div key={i} className="border text-sm" style={{ width: `${100 / products.length}%` }}>
-                      {product.name}
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
 
-        {/* The actual Sales */}
-        <div className="table-container" style={{ overflowY: "auto", maxHeight: "600px" }}>
-          <table className="table-fixed border-collapse border data-table w-full">
+  return (
+    <div className="bg-gray-400 " style={{ overflowX: "auto" }}>
+      <div className="w-full ">
+        <TopHeader />
+        <div className="table-container" style={{ overflowY: "auto", maxHeight: "700px", scrollbarGutter: "stable" }}>
+          <table className="w-full border border-collapse table-fixed data-table">
             <tbody>
               {spreadSheet.rows.map((row, rowIndex) => (
-                <tr key={rowIndex}>
-                  <td className={`text-[13px] ${row.date.getDay() === 1 ? "bg-red-200" : ""}`}>{format(row.date, "eee d MMM")}</td>
-                  {row.sales.map((sale, colIndex) => (
-                    <td
-                      key={colIndex}
-                      className={`border p-1 ${Math.floor(colIndex / products.length) % products.length === 0 ? "bg-zinc-500" : ""} `}
-                      onClick={() => handleCellClick(rowIndex, colIndex)}
-                    >
-                      {activeCell.row === rowIndex && activeCell.col === colIndex ? (
-                        <input
-                          className="focus:outline-none appearance-none bg-gray-400 w-full"
-                          type="number"
-                          value={sale.quantity}
-                          onChange={(e) => handleCellValueChange(e, rowIndex, colIndex)}
-                          // onBlur={() => handleOnBlur()}
-                          autoFocus
-                        />
-                      ) : (
-                        <span>{sale.quantity}</span>
-                      )}
-                    </td>
-                  ))}
-                </tr>
+                <Row key={rowIndex} rowIndex={rowIndex} row={row} />
               ))}
             </tbody>
           </table>
@@ -176,6 +120,65 @@ const App = ({ spreadSheet, setSpreadSheet }: SpreadSheetProps) => {
       </div>
     </div>
   );
-};
 
-export default App;
+  function TopHeader() {
+    return (
+      <div className="flex">
+        <div style={{ width: `${100 / (customers.length * products.length)}%` }}></div> {/*filler */}
+        <div className="w-full pr-4" style={{ scrollbarGutter: "stable" }}>
+          <div className="flex ">
+            {customers.map((customer, i) => (
+              <div key={i} className="w-full border">
+                {customer.name}
+              </div>
+            ))}
+          </div>
+          <div className="flex">
+            {[...numOfCustomers].map((_, j) => (
+              <div key={j} className="flex" style={{ width: `${100 / customers.length}%` }}>
+                {products.map((product, i) => (
+                  <div key={i} className="text-sm border" style={{ width: `${100 / products.length}%` }}>
+                    {product.name}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function Row({ rowIndex, row }: { rowIndex: number; row: SheetRow }) {
+    const color = rowIndex % 2 === 0 ? "bg-gray-fdssfda" : "bg-gray-300";
+    // const borderColor = wor % products.length === 0 ? "border-r-2" : "";
+    return (
+      <tr key={rowIndex}>
+        {/* date */}
+        {/* <td className={`text-[13px] ${row.date.getDay() === 1 ? "bg-red-200" : ""}`}>{format(row.date, "eee d MMM")}</td> */}
+        <td className={`text-[13px] ${color} border-r-2`}>{format(row.date, "eee d MMM")}</td>
+        {/* sales */}
+        {row.sales.map((sale, colIndex) => (
+          <td
+            key={colIndex}
+            className={`p-1 ${color} border-r-2 ${(colIndex + 1) % products.length === 0 ? " border-yellow-400 " : "border-gray-300"}`}
+            onClick={() => handleCellClick(rowIndex, colIndex)}
+          >
+            {activeCell.row === rowIndex && activeCell.col === colIndex ? (
+              <input
+                className={`w-full ${color} appearance-none focus:outline-none`}
+                type="number"
+                value={sale.quantity}
+                onChange={(e) => handleCellValueChange(e, rowIndex, colIndex)}
+                // onBlur={() => handleOnBlur()}
+                autoFocus
+              />
+            ) : (
+              <span>{sale.quantity}</span>
+            )}
+          </td>
+        ))}
+      </tr>
+    );
+  }
+}
