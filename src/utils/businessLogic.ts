@@ -1,3 +1,6 @@
+import { compareAsc, isSameDay } from 'date-fns';
+import { addDays } from 'date-fns';
+import { type RouterOutputs } from './api';
 /* eslint-disable @typescript-eslint/prefer-for-of */
 import { type BillResult as BillResult, type InvoiceLine } from "~/components/email-template";
 
@@ -124,3 +127,67 @@ export async function sendEmail(billResult: BillResult[]): Promise<void> {
         .then((x) => alert("Email sent!"))
         .catch((err) => console.log(err));
 }
+type Sales = RouterOutputs["sale"]["getAllSalesBetweenFromAndTo"];
+
+
+export function convertSalesToSpreadsheet(sales: Sales, from: Date, to: Date, liveSpreadSheet: SpreadSheet | null): SpreadSheet {
+    const returnSpreadSheet = null ?? initBlankSpreadSheet(from, to);
+    // console.log("liveSpreadSheet ?", liveSpreadSheet ? "yes" : "no");
+    // console.log("returnSpreadSheet", returnSpreadSheet.rows[0]!);
+    // console.log("############# liveSpreadSheet", liveSpreadSheet);
+    console.log("##############", sales);
+    for (const row of returnSpreadSheet.rows) {
+        for (const sale of sales) {
+            if (isSameDay(sale.saleDate, row.date)) {
+                const productId = sale.productId;
+                const customerId = sale.customerId;
+                const index = ((customerId - 1) * products.length) - 1 + productId;
+                row.sales[index]!.quantity = sale.quantity;
+            }
+        }
+    }
+
+    return returnSpreadSheet;
+}
+
+function initBlankSpreadSheet(startDate: Date, stopDate: Date): SpreadSheet {
+    const days: Date[] = getDatesBetween(startDate, stopDate);
+    const rows: SheetRow[] = [];
+    for (const day of days) {
+        const sales = new Array<Sale>(customers.length * products.length);
+
+        for (let i = 0; i < customers.length * products.length; i++) {
+            sales[i] = { quantity: 0 };
+        }
+        const row: SheetRow = {
+            date: day,
+            sales: sales,
+        }
+        rows.push(row);
+    }
+    return { rows: rows };
+}
+
+
+export function getDatesBetween(startDate: Date, stopDate: Date): Date[] {
+    let cnt = 0
+    let dateArray = [];
+    let currentDate = startDate;
+    while (!(compareAsc(currentDate, stopDate) > 0)) { // while not current after stop
+        dateArray.push(currentDate)
+        currentDate = addDays(currentDate, 1);
+        if (++cnt > 1000)
+            return [new Date(2023, 2, 2)];
+    }
+    return dateArray;
+}
+
+
+export function getCustomerAndProductFromIndex(index: number) {
+    const productId = index % products.length + 1;
+    const customerId = Math.floor(index / products.length) + 1;
+    return [customerId, productId];
+}
+
+
+// console.log(getDates(new Date(2023, 8, 1), new Date(2023, 8, 30)))

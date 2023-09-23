@@ -8,7 +8,7 @@ const generatePDF = (document: Document, outputPath: string): void => {
     const capture = document.querySelector(".actual-receipt") as HTMLElement;
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const canvas = html2canvas(capture).then((canvas) => {
+    const canvas = html2canvas(capture, { scale: 3, }).then((canvas) => {
 
         const imgData = canvas.toDataURL('image/jpeg');
 

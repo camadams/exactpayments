@@ -14,10 +14,11 @@ export const saleRouter = createTRPCRouter({
   //     };
   //   }),
 
-  getAllSalesAfterToDateAndBeforeFromDate: publicProcedure
-    .input(z.object({ to: z.date(), from: z.date() }))
+  getAllSalesBetweenFromAndTo: publicProcedure
+    .input(z.object({ from: z.date(), to: z.date() }))
     .query(({ ctx, input }) => {
-      return ctx.prisma.example.findMany({ where: { createdAt: { gte: input.from, lte: input.to } } });
+      const saless = ctx.prisma.sale.findMany({ where: { saleDate: { gte: input.from, lte: input.to } } })
+      return saless;
     }),
 
   getAll: publicProcedure.query(({ ctx }) => {
@@ -26,9 +27,27 @@ export const saleRouter = createTRPCRouter({
   }),
 
   getForMonth: publicProcedure.query(({ ctx }) => {
-    const a = ctx.prisma.example.findMany();
+    const a = ctx.prisma.sale.findMany();
     return a;
   }),
+
+  getForMontsfredafdsh: publicProcedure.query(({ ctx }) => {
+    const a = ctx.prisma.product.findMany();
+    return a;
+  }),
+
+  create: publicProcedure
+    .input(z.object({ saleDate: z.date(), quantity: z.number(), productId: z.number().min(1), customerId: z.number(), }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.sale.create({
+        data: {
+          saleDate: input.saleDate,
+          quantity: input.quantity,
+          productId: input.productId,
+          customerId: input.customerId,
+        }
+      });
+    }),
 
   // getSecretMessage: protectedProcedure.query(() => {
   //   return "you can now see this secret message!";
