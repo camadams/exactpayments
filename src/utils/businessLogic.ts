@@ -13,11 +13,14 @@ export const customers = [
     { name: "Customer 6", emailAddress: "customer6@gmail.com" },
     { name: "Customer 7", emailAddress: "customer7@gmail.com" },
     { name: "Customer 8", emailAddress: "customer8@gmail.com" },
+    { name: "Customer 9", emailAddress: "customer9@gmail.com" },
+    { name: "Customer 10", emailAddress: "customer10@gmail.com" },
 ];
 
 export const products = [
-    { name: "Product 1", unitPrice: 18 },
-    { name: "Product 2", unitPrice: 12 },
+    { name: "Alm Cros", unitPrice: 18 },
+    { name: "Cin Twist", unitPrice: 16 },
+    { name: "Choc Cros", unitPrice: 17 },
 ];
 
 

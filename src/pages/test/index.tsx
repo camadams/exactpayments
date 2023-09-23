@@ -85,10 +85,10 @@ function Home() {
   }
 
   return (
-    <div className="flex w-full pt-5">
+    <div className="flex w-full p-2">
       <div className="absolute top-0 bg-green-300 bg-opacity-50 rounded-lg w-15 ">{salesMutation.isLoading ? "Saving..." : "Auto Saved"}</div>
       {/* {isLoading ? <div>Loading</div> : data?.map((a) => <div key={a.id}>{a.quantity}</div>)} */}
-      <Nav />
+      {/* <Nav /> */}
       <div className="flex flex-col items-center w-full">
         <CalendarDateRangePicker className={"mb-5"} setDate={setDate} date={date} />
 

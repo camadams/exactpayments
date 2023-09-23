@@ -142,10 +142,10 @@ export default function App({ spreadSheet, setSpreadSheet, date, salesMutation }
   return (
     <>
       {spreadSheet ? (
-        <div className="bg-gray-400 " style={{ overflowX: "auto" }}>
-          <div className="w-full ">
+        <div className="max-w-full overflow-x-auto">
+          <div className="w-full bg-gray-400" style={{ width: `${(products.length * customers.length + 1) * 50}px` }}>
             <TopHeader />
-            <div className="table-container" style={{ overflowY: "auto", maxHeight: "700px", scrollbarGutter: "stable" }}>
+            <div className="table-container overflow-y-auto max-h-[700px]" style={{ scrollbarGutter: "stable" }}>
               <table className="w-full border border-collapse table-fixed data-table">
                 <tbody>
                   {spreadSheet.rows
@@ -167,11 +167,11 @@ export default function App({ spreadSheet, setSpreadSheet, date, salesMutation }
   function TopHeader() {
     return (
       <div className="flex">
-        <div style={{ width: `${100 / (customers.length * products.length)}%` }}></div> {/*filler */}
+        <div style={{ minWidth: "80px" }}></div> {/*filler */}
         <div className="w-full pr-4" style={{ scrollbarGutter: "stable" }}>
           <div className="flex ">
             {customers.map((customer, i) => (
-              <div key={i} className="w-full border">
+              <div key={i} className="w-full p-2 border">
                 {customer.name}
               </div>
             ))}
@@ -180,7 +180,7 @@ export default function App({ spreadSheet, setSpreadSheet, date, salesMutation }
             {[...numOfCustomers].map((_, j) => (
               <div key={j} className="flex" style={{ width: `${100 / customers.length}%` }}>
                 {products.map((product, i) => (
-                  <div key={i} className="text-sm border" style={{ width: `${100 / products.length}%` }}>
+                  <div key={i} className="p-1 text-xs border" style={{ width: `${100 / products.length}%` }}>
                     {product.name}
                   </div>
                 ))}
@@ -200,17 +200,18 @@ export default function App({ spreadSheet, setSpreadSheet, date, salesMutation }
       <tr key={rowIndex}>
         {/* date */}
         {/* <td className={`text-[13px] ${row.date.getDay() === 1 ? "bg-red-200" : ""}`}>{format(row.date, "eee d MMM")}</td> */}
-        <td className={`text-[13px] ${dayColor} border-r-2`}>{format(row.date, "eee d MMM")}</td>
+        <td className={`text-xs w-20 ${dayColor} border-r-2`}>{format(row.date, "eee d MMM")}</td>
         {/* sales */}
         {row.sales.map((sale, colIndex) => (
           <td
             key={colIndex}
-            className={`p-1 ${color} border-r-2 ${(colIndex + 1) % products.length === 0 ? " border-yellow-400 " : "border-gray-300"}`}
+            className={`p-1  border-r-2 ${color} ${(colIndex + 1) % products.length === 0 ? " border-black" : "border-gray-300"}`}
             onClick={() => handleCellClick(rowIndex, colIndex)}
+            // style={{ overflowX: "auto", maxWidth: "1800px" }}
           >
             {activeCell.row === rowIndex && activeCell.col === colIndex ? (
               <input
-                className={`w-full ${color} appearance-none focus:outline-none`}
+                className={`w-10 ${color} appearance-none focus:outline-none`}
                 type="number"
                 value={sale.quantity}
                 onChange={(e) => handleCellValueChange(e, rowIndex, colIndex)}
