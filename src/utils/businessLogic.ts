@@ -117,7 +117,8 @@ export const bill = (spreadSheet: SpreadSheet): BillResult[] => {
 export const initialBillResult = null;
 
 export async function sendEmail(billResult: BillResult[]): Promise<void> {
-    await fetch(`${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"}/api/send`, {
+    console.log(process.env.NODE_ENV)
+    await fetch(`${process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://sheetspro.vercel.app"}/api/send`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
