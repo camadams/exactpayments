@@ -98,12 +98,10 @@ export default function App({ spreadSheet, setSpreadSheet, date, salesMutation }
   });
 
   const handleOnBlur = () => {
-    console.log(activeCell.row, activeCell.col);
     const sheetRow = spreadSheet?.rows[activeCell.row]!;
     const [customerId, productId] = getCustomerAndProductFromIndex(activeCell.col);
     const quantity = sheetRow.sales[activeCell.col]!.quantity;
     if (quantity == 0) return;
-    console.log("sheetRow.date ^^^^^^^^^", sheetRow.date);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
     // salesMutation.mutate({
     //   saleDate: sheetRow.date,

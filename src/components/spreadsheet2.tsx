@@ -98,12 +98,11 @@ export default function App({ spreadSheet, setSpreadSheet, date, salesMutation }
   });
 
   const handleOnBlur = () => {
-    console.log(activeCell.row, activeCell.col);
     const sheetRow = spreadSheet?.rows[activeCell.row]!;
     const [customerId, productId] = getCustomerAndProductFromIndex(activeCell.col);
     const quantity = sheetRow.sales[activeCell.col]!.quantity;
     if (quantity == 0) return;
-    console.log("sheetRow.date ^^^^^^^^^", sheetRow.date);
+    // console.log("sheetRow.date ^^^^^^^^^", sheetRow.date);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
     // salesMutation.mutate({
     //   saleDate: sheetRow.date,
@@ -145,7 +144,7 @@ export default function App({ spreadSheet, setSpreadSheet, date, salesMutation }
         <div className="max-w-full overflow-x-auto">
           <div className="w-full bg-gray-400" style={{ width: `${(products.length * customers.length + 1) * 50}px` }}>
             <TopHeader />
-            <div className="table-container overflow-y-auto max-h-[700px]" style={{ scrollbarGutter: "stable" }}>
+            <div className="table-container overflow-y-auto max-h-[500px]" style={{ scrollbarGutter: "stable" }}>
               <table className="w-full border border-collapse table-fixed data-table">
                 <tbody>
                   {spreadSheet.rows
@@ -200,7 +199,7 @@ export default function App({ spreadSheet, setSpreadSheet, date, salesMutation }
       <tr key={rowIndex}>
         {/* date */}
         {/* <td className={`text-[13px] ${row.date.getDay() === 1 ? "bg-red-200" : ""}`}>{format(row.date, "eee d MMM")}</td> */}
-        <td className={`text-xs w-20 ${dayColor} border-r-2`}>{format(row.date, "eee d MMM")}</td>
+        <td className={`text-xs w-20 pl-1 ${dayColor} border-r-2`}>{format(row.date, "eee d MMM")}</td>
         {/* sales */}
         {row.sales.map((sale, colIndex) => (
           <td

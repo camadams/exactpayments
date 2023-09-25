@@ -1,20 +1,21 @@
-import { compareAsc, isSameDay } from 'date-fns';
+import { addHours, compareAsc, isSameDay } from 'date-fns';
 import { addDays } from 'date-fns';
 import { type RouterOutputs } from './api';
 /* eslint-disable @typescript-eslint/prefer-for-of */
 import { type BillResult as BillResult, type InvoiceLine } from "~/components/email-template";
+import generatePDF from './generatePDF';
 
 export const customers = [
     { name: "Customer 1", emailAddress: "customer1@gmail.com" },
-    { name: "Customer 2", emailAddress: "customer2@gmail.com" },
-    { name: "Customer 3", emailAddress: "customer3@gmail.com" },
-    { name: "Customer 4", emailAddress: "customer4@gmail.com" },
-    { name: "Customer 5", emailAddress: "customer5@gmail.com" },
-    { name: "Customer 6", emailAddress: "customer6@gmail.com" },
-    { name: "Customer 7", emailAddress: "customer7@gmail.com" },
-    { name: "Customer 8", emailAddress: "customer8@gmail.com" },
-    { name: "Customer 9", emailAddress: "customer9@gmail.com" },
-    { name: "Customer 10", emailAddress: "customer10@gmail.com" },
+    // { name: "Customer 2", emailAddress: "customer2@gmail.com" },
+    // { name: "Customer 3", emailAddress: "customer3@gmail.com" },
+    // { name: "Customer 4", emailAddress: "customer4@gmail.com" },
+    // { name: "Customer 5", emailAddress: "customer5@gmail.com" },
+    // { name: "Customer 6", emailAddress: "customer6@gmail.com" },
+    // { name: "Customer 7", emailAddress: "customer7@gmail.com" },
+    // { name: "Customer 8", emailAddress: "customer8@gmail.com" },
+    // { name: "Customer 9", emailAddress: "customer9@gmail.com" },
+    // { name: "Customer 10", emailAddress: "customer10@gmail.com" },
 ];
 
 export const products = [
@@ -105,12 +106,15 @@ export const bill = (spreadSheet: SpreadSheet): BillResult[] => {
             i++;
         }
 
+        // generatePDF(document, "C:/halaha.pdf");
         const billResultForThisCustomer: BillResult = {
             firstName: customer.name,
             customerEmail: customer.emailAddress,
             invoiceLines: invoiceLines,
             grandTotal: grandTotal,
+            // filename: "C:/halaha.pdf",
         };
+        // console.log(billResultForThisCustomer)
         allCustomersBillResult.push(billResultForThisCustomer);
     }
 
@@ -120,7 +124,6 @@ export const bill = (spreadSheet: SpreadSheet): BillResult[] => {
 export const initialBillResult = null;
 
 export async function sendEmail(billResult: BillResult[]): Promise<void> {
-    console.log(process.env.NODE_ENV)
     await fetch(`${process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://sheetspro.vercel.app"}/api/send`, {
         method: "POST",
         headers: {
@@ -128,7 +131,7 @@ export async function sendEmail(billResult: BillResult[]): Promise<void> {
         },
         body: JSON.stringify({ ...billResult[0] }),
     })
-        .then((x) => alert("Email sent!"))
+        .then((x) => alert("Email sent! Result: " + x.status + " " + x.statusText))
         .catch((err) => console.log(err));
 }
 type Sales = RouterOutputs["sale"]["getAllSalesBetweenFromAndTo"];
@@ -139,10 +142,10 @@ export function convertSalesToSpreadsheet(sales: Sales, from: Date, to: Date, li
     // console.log("liveSpreadSheet ?", liveSpreadSheet ? "yes" : "no");
     // console.log("returnSpreadSheet", returnSpreadSheet.rows[0]!);
     // console.log("############# liveSpreadSheet", liveSpreadSheet);
-    console.log("##############", sales);
+    // console.log("##############", sales);
     for (const row of returnSpreadSheet.rows) {
         for (const sale of sales) {
-            if (isSameDay(sale.saleDate, row.date)) {
+            if (isSameDay(addHours(sale.saleDate, 0), row.date)) {
                 const productId = sale.productId;
                 const customerId = sale.customerId;
                 const index = ((customerId - 1) * products.length) - 1 + productId;
@@ -193,5 +196,9 @@ export function getCustomerAndProductFromIndex(index: number) {
     return [customerId, productId];
 }
 
+export function getMyDate(datedate: number) {
+    const date = new Date();
+    return new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())
+}
 
 // console.log(getDates(new Date(2023, 8, 1), new Date(2023, 8, 30)))

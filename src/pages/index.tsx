@@ -8,6 +8,7 @@
 // import { api } from "~/utils/api";
 // import generatePDF from "~/utils/generatePDF";
 
+import { signIn, signOut, useSession } from "next-auth/react";
 import Nav from "~/components/nav";
 
 // export const customers = [
@@ -173,9 +174,24 @@ import Nav from "~/components/nav";
 const App = () => {
   return (
     <div>
-      <Nav />
+      <AuthShowcase />
     </div>
   );
 };
+
+function AuthShowcase() {
+  const { data: sessionData } = useSession();
+  return (
+    <div className="flex flex-col items-center justify-center">
+      <p className="text-center text-2xl">{sessionData && <span>Logged in as {sessionData.user?.name}</span>}</p>
+      <button
+        className="rounded-full bg-white/10 p-3 font-semibold no-underline transition hover:bg-slate-300/20"
+        onClick={sessionData ? () => void signOut() : () => void signIn("google", { callbackUrl: "/test" })}
+      >
+        {sessionData ? "Sign out" : "Sign in"}
+      </button>
+    </div>
+  );
+}
 
 export default App;

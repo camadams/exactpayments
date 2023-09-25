@@ -15,9 +15,20 @@ export const saleRouter = createTRPCRouter({
   //   }),
 
   getAllSalesBetweenFromAndTo: publicProcedure
-    .input(z.object({ from: z.date(), to: z.date() }))
+    .input(z.object({ from: z.date().optional(), to: z.date() }))
     .query(({ ctx, input }) => {
+      // input.to = input.to ?? input.from;
+      // if(from === undefined) { 
       const saless = ctx.prisma.sale.findMany({ where: { saleDate: { gte: input.from, lte: input.to } } })
+      return saless;
+    }),
+
+  getAllSalesBetweenFromAndToByUserId: publicProcedure
+    .input(z.object({ from: z.date().nullish(), to: z.date().nullish(), userId: z.number().optional() }))
+    .query(({ ctx, input }) => {
+      // input.to = input.to ?? input.from;
+      // if(from === undefined) { 
+      const saless = ctx.prisma.sale.findMany({ where: { saleDate: { gte: input.from ?? undefined, lte: input.to ?? undefined }, userId: input.userId } })
       return saless;
     }),
 
@@ -45,6 +56,7 @@ export const saleRouter = createTRPCRouter({
           quantity: input.quantity,
           productId: input.productId,
           customerId: input.customerId,
+          userId: 1,
         }
       });
     }),

@@ -14,6 +14,7 @@ export interface BillResult {
   customerEmail: string;
   invoiceLines: InvoiceLine[];
   grandTotal: number;
+  filename?: string;
   fromDate?: Date;
   toDate?: Date;
   billDate?: Date;
