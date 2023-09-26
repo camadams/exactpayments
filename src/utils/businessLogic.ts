@@ -1,13 +1,12 @@
 import { addHours, compareAsc, isSameDay } from 'date-fns';
 import { addDays } from 'date-fns';
-import { type RouterOutputs } from './api';
+import { api, type RouterOutputs } from './api';
 /* eslint-disable @typescript-eslint/prefer-for-of */
-import { type BillResult as BillResult, type InvoiceLine } from "~/components/email-template";
 import generatePDF from './generatePDF';
 
 export const customers = [
     { name: "Customer 1", emailAddress: "customer1@gmail.com" },
-    // { name: "Customer 2", emailAddress: "customer2@gmail.com" },
+    { name: "Customer 2", emailAddress: "customer2@gmail.com" },
     // { name: "Customer 3", emailAddress: "customer3@gmail.com" },
     // { name: "Customer 4", emailAddress: "customer4@gmail.com" },
     // { name: "Customer 5", emailAddress: "customer5@gmail.com" },
@@ -23,6 +22,26 @@ export const products = [
     { name: "Cin Twist", unitPrice: 16 },
     { name: "Choc Cros", unitPrice: 17 },
 ];
+
+
+export interface InvoiceLine {
+    description: string;
+    quantity: number;
+    unitPrice: number;
+    total: number;
+}
+
+export interface BillCustomerResult {
+    firstName: string;
+    customerEmail: string;
+    invoiceLines: InvoiceLine[];
+    invoiceNumber: string;
+    grandTotal: number;
+    filename?: string;
+    billFromDate: Date;
+    billToDate: Date;
+    billDate: Date;
+}
 
 
 export interface Sale {
@@ -79,7 +98,7 @@ type Product = {
     unitPrice: number;
 };
 
-export const bill = (spreadSheet: SpreadSheet): BillResult[] => {
+export const bill = (spreadSheet: SpreadSheet): BillCustomerResult[] => {
 
     const custProdLength = spreadSheet.rows[0]!.sales.length;
     const accum: number[] = [...new Array<number>(custProdLength).fill(0)];
@@ -92,8 +111,10 @@ export const bill = (spreadSheet: SpreadSheet): BillResult[] => {
     const allCustomersBillResult = []
     let i = 0;
     for (const customer of customers) {
+
         let grandTotal = 0;
         const invoiceLines = [];
+
         for (const product of products) {
             const newLine: InvoiceLine = {
                 description: product.name,
@@ -106,12 +127,18 @@ export const bill = (spreadSheet: SpreadSheet): BillResult[] => {
             i++;
         }
 
+        const { data } = api.billCustomerResultRouter.getLatestInvoiceNumber.useQuery();
+
         // generatePDF(document, "C:/halaha.pdf");
-        const billResultForThisCustomer: BillResult = {
+        const billResultForThisCustomer: BillCustomerResult = {
             firstName: customer.name,
             customerEmail: customer.emailAddress,
             invoiceLines: invoiceLines,
+            invoiceNumber: data?.toString() ?? "usequery didnt work",
             grandTotal: grandTotal,
+            billDate: new Date(),
+            billFromDate: spreadSheet.rows[0]!.date,
+            billToDate: spreadSheet.rows[spreadSheet.rows.length - 1]!.date,
             // filename: "C:/halaha.pdf",
         };
         // console.log(billResultForThisCustomer)
@@ -121,9 +148,8 @@ export const bill = (spreadSheet: SpreadSheet): BillResult[] => {
     return allCustomersBillResult;
 };
 
-export const initialBillResult = null;
 
-export async function sendEmail(billResult: BillResult[]): Promise<void> {
+export async function sendEmail(billResult: BillCustomerResult[]): Promise<void> {
     await fetch(`${process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://sheetspro.vercel.app"}/api/send`, {
         method: "POST",
         headers: {

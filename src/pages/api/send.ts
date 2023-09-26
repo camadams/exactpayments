@@ -1,13 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Resend } from 'resend';
 import type { CreateEmailOptions } from 'resend/build/src/emails/interfaces';
-import { EmailTemplate, type BillResult } from '~/components/email-template';
+import { EmailTemplate, } from '~/components/email-template';
 import fs from 'fs';
+import { BillCustomerResult } from '~/utils/businessLogic';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const a = async (req: NextApiRequest, res: NextApiResponse) => {
-
 
     try {
         // let x: Buffer = Buffer.alloc(0);
@@ -22,7 +22,7 @@ const a = async (req: NextApiRequest, res: NextApiResponse) => {
         //     console.log('File contents as Buffer:', data);
         // });
 
-        const billResult = req.body as BillResult;
+        const billResult = req.body as BillCustomerResult;
 
         // const pdfBuffer = fs.readFileSync(billResult.filename);
 

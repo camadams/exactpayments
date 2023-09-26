@@ -1,7 +1,8 @@
-import { type BillResult, EmailTemplate } from "./email-template";
+import { type BillCustomerResult } from "~/utils/businessLogic";
+import { EmailTemplate } from "./email-template";
 import { useState } from "react";
 
-export const InvoicesPreview = ({ billResults }: { billResults: BillResult[] }) => {
+export const InvoicesPreview = ({ billResults }: { billResults: BillCustomerResult[] }) => {
   const [index, setIndex] = useState<number>(0);
   return (
     <main>

@@ -1,24 +1,8 @@
 import { Img } from "@react-email/img";
 import { Tailwind } from "@react-email/tailwind";
+import { addDays, format } from "date-fns";
 import * as React from "react";
-
-export interface InvoiceLine {
-  description: string;
-  quantity: number;
-  unitPrice: number;
-  total: number;
-}
-
-export interface BillResult {
-  firstName: string;
-  customerEmail: string;
-  invoiceLines: InvoiceLine[];
-  grandTotal: number;
-  filename?: string;
-  fromDate?: Date;
-  toDate?: Date;
-  billDate?: Date;
-}
+import { type BillCustomerResult } from "~/utils/businessLogic";
 
 // export const EmailTemplate: React.FC<EmailTemplateProps> = (props) => (
 //   <div className="flex flex-col items-center justify-center">
@@ -26,7 +10,7 @@ export interface BillResult {
 //   </div>
 // );
 
-export const EmailTemplate = (billResult: BillResult) => {
+export const EmailTemplate = (billResult: BillCustomerResult) => {
   return (
     <Tailwind>
       <div className="bg-gray-100 p-4 h-[1410px] ">
@@ -72,16 +56,16 @@ export const EmailTemplate = (billResult: BillResult) => {
               <div className="mb-2">
                 <div className="gap-1 ">
                   <p className="flex mb-1">
-                    <span className="mr-3 text-gray-600"> Invoice Number: </span> HT123
+                    <span className="mr-3 text-gray-600"> Invoice Number: </span> {billResult.invoiceNumber}
                   </p>
                   <p className="flex mb-1">
-                    <span className="mr-3 text-gray-600">Invoice Created: </span> 2023/08/01
+                    <span className="mr-3 text-gray-600">Invoice Created: </span> {format(billResult.billDate, "dd MMM yyyy")}
                   </p>
                   <p className="flex mb-1">
-                    <span className="mr-3 text-gray-600">Due Date: </span> 2023/08/31
+                    <span className="mr-3 text-gray-600">Due Date: </span> {format(addDays(billResult.billDate, 7), "dd MMM yyyy")}
                   </p>
                   <p className="flex mb-1">
-                    <span className="mr-3 text-gray-600">Billing Period: </span> 2023/08/31 - 2023/08/31
+                    <span className="mr-3 text-gray-600">Billing Period: </span> {format(billResult.billFromDate, "dd MMM yyyy")} - {format(billResult.billToDate, "dd MMM yyyy")}
                   </p>
                 </div>
               </div>
