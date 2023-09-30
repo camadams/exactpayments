@@ -1,6 +1,6 @@
+import { products } from '~/utils/businessLogic';
 // import { InvoiceLine } from '~/components/email-template';
 import { type Prisma, type PrismaClient } from '@prisma/client';
-import { billCustomerResultRouter } from './billcustomerresult';
 
 import { z } from "zod";
 import {
@@ -8,20 +8,40 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { type DefaultArgs } from '@prisma/client/runtime/library';
+import { RouterOutputs } from '~/utils/api';
+import { addDays, addHours, isSameDay, compareAsc, format } from 'date-fns';
 // import { InvoiceLine } from "~/utils/businessLogic";
 
-const saleSchema = z.object({
+const cellSchema = z.object({
   quantity: z.number().min(0),
 });
 
 // Define a schema for the SheetRow type
 const sheetRowSchema = z.object({
   date: z.date(),
-  sales: z.array(saleSchema),
+  sales: z.array(cellSchema),
+});
+
+export const productSchema = z.object({
+  name: z.string(),
+  unitPrice: z.number().min(0),
+});
+
+export const customerSchema = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  invoicePrefix: z.string(),
+});
+
+
+const businessSchema = z.object({
+  customer: customerSchema,
+  products: z.array(productSchema),
 });
 
 // Define a schema for the SpreadSheet type
 export const spreadsheetSchema = z.object({
+  header: z.array(businessSchema),
   rows: z.array(sheetRowSchema),
 });
 
@@ -42,13 +62,22 @@ export interface BillCustomerResult {
   billFromDate: Date;
   billToDate: Date;
   billDate: Date;
+  textSummary: string;
 }
 
 
-type SpreadSheet = z.infer<typeof spreadsheetSchema>;
+export type SpreadSheet = z.infer<typeof spreadsheetSchema>;
 type SheetRow = z.infer<typeof sheetRowSchema>;
 type InvoiceLine = z.infer<typeof invoiceLineSchema>;
+type Cell = z.infer<typeof cellSchema>;
 
+type Sale = RouterOutputs["sale"]["getAllSalesBetweenFromAndTo"][number];
+type Product = z.infer<typeof productSchema>;
+type Customer = z.infer<typeof customerSchema>;
+type Business = z.infer<typeof businessSchema>;
+
+
+const aaa = z.custom<Cell>();
 export const saleRouter = createTRPCRouter({
   // hello: publicProcedure
   //   .input(z.object({ text: z.string() }))
@@ -72,8 +101,33 @@ export const saleRouter = createTRPCRouter({
     .query(({ ctx, input }) => {
       // input.to = input.to ?? input.from;
       // if(from === undefined) { 
-      const saless = ctx.prisma.sale.findMany({ where: { saleDate: { gte: input.from ?? undefined, lte: input.to ?? undefined }, userId: input.userId } })
+      const saless = ctx.prisma.sale.findMany({
+        where: {
+          saleDate: { gte: input.from ?? undefined, lte: input.to ?? undefined },
+          userId: input.userId
+        }
+      })
       return saless;
+    }),
+
+  getSpreadSheetFromAndToByUserId: publicProcedure
+    .input(z.object({ from: z.date().nullish(), to: z.date().nullish(), userId: z.number().optional() }))
+    .query(async ({ ctx, input }) => {
+      // input.to = input.to ?? input.from;
+      // if(from === undefined) { 
+      const { from, to, userId } = input
+      const saless = await ctx.prisma.sale.findMany({
+        where: {
+          saleDate: { gte: from ?? undefined, lte: to ?? undefined },
+          userId: userId
+        }
+      })
+      let convertedSpreadSheet = null;
+      if (saless && from && to) {
+        convertedSpreadSheet = await convertSalesToSpreadsheet(saless, from, to, null, ctx.prisma);
+      }
+
+      return convertedSpreadSheet;
     }),
 
   bill: publicProcedure
@@ -166,19 +220,36 @@ const bill = async (spreadSheet: SpreadSheet, prisma: PrismaClient<Prisma.Prisma
       i++;
     }
 
+    if (grandTotal === 0) {
+      continue;
+    }
+
     const lastbillCustomerResultForCustomer = await prisma.billCustomerResult.findFirst({ where: { firstName: customer.name } });
     const invoiceNumber = customer.invoicePrefix + (lastbillCustomerResultForCustomer?.id ?? 0) + 1;
+    const firstName = customer.name;
+    const customerEmail = customer.email;
+    const billFromDate = spreadSheet.rows[0]!.date;
+    const billToDate = spreadSheet.rows[spreadSheet.rows.length - 1]!.date;
 
     // generatePDF(document, "C:/halaha.pdf");
     const billResultForThisCustomer: BillCustomerResult = {
-      firstName: customer.name,
-      customerEmail: customer.email,
-      invoiceLines: invoiceLines,
-      invoiceNumber: invoiceNumber,
-      grandTotal: grandTotal,
+      firstName,
+      customerEmail,
+      invoiceLines,
+      invoiceNumber,
+      grandTotal,
       billDate: new Date(),
-      billFromDate: spreadSheet.rows[0]!.date,
-      billToDate: spreadSheet.rows[spreadSheet.rows.length - 1]!.date,
+      billFromDate,
+      billToDate,
+      textSummary: `Hi ${firstName}\n
+Please note from ${format(billFromDate, "MMM d")} - ${format(billToDate, "MMM d")} you received the following items:
+${invoiceLines.filter((line) => line.quantity > 0).map((line) => {
+        return `\t${line.quantity} x ${line.description} @ R${line.unitPrice} = R${line.total}`;
+      }).join("\n")}
+Total: R${grandTotal}\n
+Please pay as soon as possible.\n
+Kind regards,\n
+Emz x`,
       // filename: "C:/halaha.pdf",
     };
     // console.log(billResultForThisCustomer)
@@ -187,3 +258,79 @@ const bill = async (spreadSheet: SpreadSheet, prisma: PrismaClient<Prisma.Prisma
 
   return allCustomersBillResult;
 };
+
+
+// /*
+// TEST THISSSSS
+// */
+
+async function convertSalesToSpreadsheet(sales: Sale[], from: Date, to: Date, liveSpreadSheet: SpreadSheet | null, prisma: PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>): Promise<SpreadSheet> {
+  const products = await prisma.product.findMany();
+  const customers = await prisma.customer.findMany({ orderBy: { id: "asc" } });
+
+  const emptySheetRows: SheetRow[] = null ?? initEmptySheetRows(from, to, products, customers);
+  const rows: SheetRow[] = addSalesToEmptyRows(sales, emptySheetRows);
+  const header: Business[] = initBusinesss(customers, products);
+
+  return { header, rows }
+}
+
+function initEmptySheetRows(startDate: Date, stopDate: Date, products: Product[], customers: Customer[]): SheetRow[] {
+  const days: Date[] = getDatesBetween(startDate, stopDate);
+  const rows: SheetRow[] = [];
+  for (const day of days) {
+    const sales = new Array<Cell>(customers.length * products.length);
+    for (let i = 0; i < customers.length * products.length; i++) {
+      sales[i] = { quantity: 0 };
+    }
+    const row: SheetRow = {
+      date: day,
+      sales: sales,
+    }
+    rows.push(row);
+  }
+  return rows;
+}
+
+
+function getDatesBetween(startDate: Date, stopDate: Date): Date[] {
+  let cnt = 0
+  let dateArray: Date[] = [];
+  let currentDate = startDate;
+  while (!(compareAsc(currentDate, stopDate) > 0)) { // while not current after stop
+    dateArray.push(currentDate)
+    currentDate = addDays(currentDate, 1);
+    if (++cnt > 1000)
+      return [new Date(2023, 2, 2)];
+  }
+  return dateArray;
+}
+
+function addSalesToEmptyRows(sales: Sale[], emptySheetRows: SheetRow[]) {
+  for (const emptyRow of emptySheetRows) {
+    for (const sale of sales) {
+      if (isSameDay(addHours(sale.saleDate, 0), emptyRow.date)) {
+        const productId = sale.productId;
+        const customerId = sale.customerId;
+        const index = ((customerId - 1) * products.length) - 1 + productId;
+        emptyRow.sales[index]!.quantity = sale.quantity;
+      }
+    }
+  }
+  return emptySheetRows;
+}
+
+
+function initBusinesss(customers: Customer[], products: Product[]): Business[] {
+  const header: Business[] = [];
+  for (const customer of customers) {
+    // const productsForThisCustomer = products.filter(product => product.customerId === customer.id);
+    const business: Business = {
+      customer: customer,
+      products: products,
+    };
+    header.push(business);
+  }
+  return header;
+}
+

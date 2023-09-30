@@ -1,5 +1,8 @@
 
+import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { productSchema } from "./sale";
+
 
 export const productRouter = createTRPCRouter({
   // hello: publicProcedure
@@ -15,6 +18,17 @@ export const productRouter = createTRPCRouter({
     return allCustomers;
   }),
 
+  createProduct: publicProcedure
+    .input(productSchema)
+    .mutation(({ ctx, input }) => {
+      const { name, unitPrice } = input;
+      return ctx.prisma.product.create({
+        data: {
+          name, unitPrice
+        }
+      });
+    }),
+
   getForMonth: publicProcedure.query(({ ctx }) => {
     const a = ctx.prisma.example.findMany();
     return a;
@@ -23,4 +37,5 @@ export const productRouter = createTRPCRouter({
   // getSecretMessage: protectedProcedure.query(() => {
   //   return "you can now see this secret message!";
   // }),
+
 });

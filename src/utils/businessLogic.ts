@@ -3,11 +3,12 @@ import { addDays } from 'date-fns';
 import { api, type RouterOutputs } from './api';
 /* eslint-disable @typescript-eslint/prefer-for-of */
 import generatePDF from './generatePDF';
+import { BillCustomerResult } from '~/server/api/routers/sale';
 
 export const customers = [
     { name: "Customer 1", emailAddress: "customer1@gmail.com" },
     { name: "Customer 2", emailAddress: "customer2@gmail.com" },
-    // { name: "Customer 3", emailAddress: "customer3@gmail.com" },
+    { name: "Customer 3", emailAddress: "customer3@gmail.com" },
     // { name: "Customer 4", emailAddress: "customer4@gmail.com" },
     // { name: "Customer 5", emailAddress: "customer5@gmail.com" },
     // { name: "Customer 6", emailAddress: "customer6@gmail.com" },
@@ -31,17 +32,17 @@ export interface InvoiceLine {
     total: number;
 }
 
-export interface BillCustomerResult {
-    firstName: string;
-    customerEmail: string;
-    invoiceLines: InvoiceLine[];
-    invoiceNumber: string;
-    grandTotal: number;
-    filename?: string;
-    billFromDate: Date;
-    billToDate: Date;
-    billDate: Date;
-}
+// export interface BillCustomerResult {
+//     firstName: string;
+//     customerEmail: string;
+//     invoiceLines: InvoiceLine[];
+//     invoiceNumber: string;
+//     grandTotal: number;
+//     filename?: string;
+//     billFromDate: Date;
+//     billToDate: Date;
+//     billDate: Date;
+// }
 
 
 export interface Sale {
@@ -98,55 +99,6 @@ type Product = {
     unitPrice: number;
 };
 
-export const bill = (spreadSheet: SpreadSheet): BillCustomerResult[] => {
-
-    const custProdLength = spreadSheet.rows[0]!.sales.length;
-    const accum: number[] = [...new Array<number>(custProdLength).fill(0)];
-
-    for (let x = 0; x < custProdLength; x++) {
-        for (let y = 0; y < spreadSheet.rows.length; y++) {
-            accum[x] += spreadSheet.rows[y]!.sales[x]!.quantity;
-        }
-    }
-    const allCustomersBillResult = []
-    let i = 0;
-    for (const customer of customers) {
-
-        let grandTotal = 0;
-        const invoiceLines = [];
-
-        for (const product of products) {
-            const newLine: InvoiceLine = {
-                description: product.name,
-                quantity: accum[i]!,
-                unitPrice: product.unitPrice,
-                total: accum[i]! * product.unitPrice,
-            };
-            invoiceLines.push(newLine);
-            grandTotal += newLine.total;
-            i++;
-        }
-
-        const { data } = api.billCustomerResultRouter.getLatestInvoiceNumber.useQuery();
-
-        // generatePDF(document, "C:/halaha.pdf");
-        const billResultForThisCustomer: BillCustomerResult = {
-            firstName: customer.name,
-            customerEmail: customer.emailAddress,
-            invoiceLines: invoiceLines,
-            invoiceNumber: data?.toString() ?? "usequery didnt work",
-            grandTotal: grandTotal,
-            billDate: new Date(),
-            billFromDate: spreadSheet.rows[0]!.date,
-            billToDate: spreadSheet.rows[spreadSheet.rows.length - 1]!.date,
-            // filename: "C:/halaha.pdf",
-        };
-        // console.log(billResultForThisCustomer)
-        allCustomersBillResult.push(billResultForThisCustomer);
-    }
-
-    return allCustomersBillResult;
-};
 
 
 export async function sendEmail(billResult: BillCustomerResult[]): Promise<void> {
@@ -155,20 +107,17 @@ export async function sendEmail(billResult: BillCustomerResult[]): Promise<void>
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...billResult[0] }),
+        body: JSON.stringify(billResult),
     })
         .then((x) => alert("Email sent! Result: " + x.status + " " + x.statusText))
         .catch((err) => console.log(err));
 }
-type Sales = RouterOutputs["sale"]["getAllSalesBetweenFromAndTo"];
+
+type Saley = RouterOutputs["sale"]["getAllSalesBetweenFromAndTo"][number];
 
 
-export function convertSalesToSpreadsheet(sales: Sales, from: Date, to: Date, liveSpreadSheet: SpreadSheet | null): SpreadSheet {
+export function convertSalesToSpreadsheet(sales: Saley[], from: Date, to: Date, liveSpreadSheet: SpreadSheet | undefined): SpreadSheet {
     const returnSpreadSheet = null ?? initBlankSpreadSheet(from, to);
-    // console.log("liveSpreadSheet ?", liveSpreadSheet ? "yes" : "no");
-    // console.log("returnSpreadSheet", returnSpreadSheet.rows[0]!);
-    // console.log("############# liveSpreadSheet", liveSpreadSheet);
-    // console.log("##############", sales);
     for (const row of returnSpreadSheet.rows) {
         for (const sale of sales) {
             if (isSameDay(addHours(sale.saleDate, 0), row.date)) {

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import React, { useEffect, useState } from "react";
 import SpreadSheetComponent from "~/components/spreadsheet2";
-import { type SpreadSheet, bill, sendEmail, convertSalesToSpreadsheet, type BillCustomerResult, SheetRow } from "~/utils/businessLogic";
+import { sendEmail, convertSalesToSpreadsheet, SheetRow } from "~/utils/businessLogic";
 import Nav from "~/components/nav";
 import generatePDF from "~/utils/generatePDF";
 import { InvoicesPreview } from "~/components/InvoicesPreview";
@@ -12,107 +12,44 @@ import { type DateRange } from "react-day-picker";
 import { CalendarDateRangePicker } from "~/components/date-range-picker";
 import { api, type RouterOutputs, type RouterInputs } from "~/utils/api";
 import { useSession } from "next-auth/react";
-import { type z } from "zod";
+import { z } from "zod";
 
-import { type spreadsheetSchema } from "~/server/api/routers/sale";
-
-type xxx = z.infer<typeof spreadsheetSchema>;
-
-type jkl = RouterOutputs["sale"]["bill"];
+import { type SpreadSheet, type BillCustomerResult } from "~/server/api/routers/sale";
+import Link from "next/link";
 
 function Home() {
   type a = RouterOutputs["sale"]["getAllSalesBetweenFromAndTo"];
   const [hasBilled, setHasBilled] = useState(false);
   const [billResult, setBillResultt] = useState<BillCustomerResult[] | undefined>(undefined);
-  const [spreadSheet, setSpreadSheet] = useState<SpreadSheet | null>(null);
+  const [spreadSheet, setSpreadSheet] = useState<SpreadSheet | undefined>(undefined);
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: addHours(startOfDay(new Date()), 0), //8 is september
     to: addDays(startOfDay(new Date()), 7),
   });
 
-  const [del, setdel] = useState<jkl>();
-  // const handleBillClicked = (spreadSheet: SpreadSheet) => {
-  //   setBillResultt(() => bill(spreadSheet));
-  //   setHasBilled(true);
-  // };
-
   const { data } = useSession();
-  const { data: salesFromDB, refetch } = api.sale.getAllSalesBetweenFromAndToByUserId.useQuery({ from: date?.from, to: date?.to }, { refetchInterval: false, refetchOnWindowFocus: false });
-  // console.log("date ?", salesFromDB ? "true" : "false");
+  const { data: salesFromDB, refetch } = api.sale.getSpreadSheetFromAndToByUserId.useQuery({ from: date?.from, to: date?.to }, { refetchInterval: false, refetchOnWindowFocus: false });
   const salesMutation = api.sale.create.useMutation({ onSuccess: () => console.log("successfull creation") });
   useEffect(() => {
     if (salesFromDB && date) {
-      const convertedSpreadSheet = convertSalesToSpreadsheet(salesFromDB, date.from!, date.to!, spreadSheet);
-
-      setSpreadSheet(convertedSpreadSheet);
-      // console.log("************* spreadsheeeettt after set in use effect", spreadSheet);
+      console.log(salesFromDB);
+      setSpreadSheet(salesFromDB);
     }
   }, [salesFromDB]);
-
-  // const { data: billedFromServer } = api.sale.bill.useQuery({ rows: spreadSheet?.rows ?? [] }, { refetchInterval: false, refetchOnWindowFocus: false, enabled: hasBilled });
 
   const billMutation = api.sale.bill2.useMutation();
 
   const handleButtonClicked = () => {
-    billMutation.mutate({ rows: spreadSheet?.rows ?? [] });
-    setHasBilled(false);
+    if (spreadSheet) {
+      billMutation.mutate({ ...spreadSheet });
+      setHasBilled(false);
+    }
   };
 
   if (billMutation.data && !hasBilled) {
     setHasBilled(true);
     setBillResultt(billMutation.data);
   }
-
-  // if (billedFromServer) {
-  //   setHasBilled(false);
-  //   setBillResultt(billedFromServer);
-  // }
-  // useEffect(() => {
-  //   async function fetchData() {
-  //     if (hasBilled) {
-  //       const { data: result } = await bill.refetch();
-  //       setBillResultt(result);
-  //     }
-  //   }
-  //   fetchData()
-  //     .then(() => console.log("done"))
-  //     .catch((err) => console.log(err));
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [hasBilled]);
-
-  // useEffect(() => {
-  //   async function fetchData() {
-  //     if (hasBilled) {
-  //       const result = await fetch("http://localhost:3000/api/sale/bill");
-  //       setBillResultt(result);
-  //     }
-  //   }
-  //   fetchData()
-  //     .then(() => console.log("done"))
-  //     .catch((err) => console.log(err));
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [hasBilled]);
-
-  // const zeze = api.sale.tata.useMutation({
-  //   mutationFn: ({ content }) => {
-  //     return content;
-  //   },
-  // });
-
-  // zeze.mutate({ content: "blah" });
-
-  // if (spreadSheet) {
-  //   const { data: blah, isLoading } = api.sale.doNothing.useQuery({ rows: spreadSheet.rows }, { refetchInterval: false, refetchOnWindowFocus: false });
-  //   setdel(blah);
-  // }
-
-  // let cnt = 0;
-  // if (data && cnt === 0) {
-  //   const convertedSpreadSheet = convertSalesToSpreadsheet(data, date!.from!, date!.to!);
-  //   console.log("*************", convertedSpreadSheet.rows[convertedSpreadSheet.rows.length - 1]?.sales);
-  //   setSpreadSheet(convertedSpreadSheet);
-  //   cnt++;
-  // }
 
   function saveSheet() {
     salesMutation.mutate({
@@ -124,19 +61,17 @@ function Home() {
   }
 
   return (
-    <div className="flex w-full p-2">
-      {/* <div> Date: {date ? "true" : "false"}</div>
-      <div> From: {date?.from ? "true" : "false"}</div>
-      <div> to: {date?.to ? "true" : "false"}</div> */}
-      {/* <div> {del ? del : "loading blah"}</div> */}
-      <div> {billResult ? "yes has billed" : "no hasnt billed"}</div>
+    <div className="flex w-full px-2">
       <div className="absolute top-0 bg-green-300 bg-opacity-50 rounded-lg w-15 ">{salesMutation.isLoading ? "Saving..." : "Auto Saved"}</div>
-      {/* {isLoading ? <div>Loading</div> : data?.map((a) => <div key={a.id}>{a.quantity}</div>)} */}
-      {/* <Nav /> */}
       <div className="flex flex-col items-center w-full">
-        <CalendarDateRangePicker className={""} setDate={setDate} date={date} />
+        <div className="flex">
+          <CalendarDateRangePicker className={""} setDate={setDate} date={date} />
+          <Link href="/settings" className="absolute top-0 right-0 bg-yellow-300 w-20 h-10 rounded-lg">
+            Settings
+          </Link>
+        </div>
 
-        <SpreadSheetComponent spreadSheet={spreadSheet} setSpreadSheet={setSpreadSheet} date={date} salesMutation={salesMutation} />
+        {spreadSheet ? <SpreadSheetComponent spreadSheet={spreadSheet} setSpreadSheet={setSpreadSheet} date={date} salesMutation={salesMutation} /> : <div>Loading spreadsheet</div>}
         <div className="flex gap-4 my-4">
           {billResult ? (
             <>
@@ -152,11 +87,8 @@ function Home() {
             </>
           ) : (
             <>
-              {/* <button className="w-20 h-10 bg-green-400 rounded-lg hover:bg-green-700 hover:text-gray-100" onClick={() => handleBillClicked(spreadSheet!)}>
-                Bill
-              </button> */}
               <button className="w-20 h-10 bg-green-400 rounded-lg hover:bg-green-700 hover:text-gray-100" onClick={() => handleButtonClicked()}>
-                Bill with backend
+                Bill
               </button>
             </>
           )}

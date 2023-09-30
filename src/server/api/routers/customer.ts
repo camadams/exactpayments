@@ -1,5 +1,8 @@
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { customerSchema } from "./sale";
+
+
 
 export const customerRouter = createTRPCRouter({
   // hello: publicProcedure
@@ -9,6 +12,17 @@ export const customerRouter = createTRPCRouter({
   //       greeting: `Hello ${input.text}`,
   //     };
   //   }),
+
+  createCustomer: publicProcedure
+    .input(customerSchema)
+    .mutation(({ ctx, input }) => {
+      const { name, email, invoicePrefix } = input;
+      return ctx.prisma.customer.create({
+        data: {
+          name, email, invoicePrefix,
+        }
+      });
+    }),
 
   getAll: publicProcedure.query(({ ctx }) => {
     const allCustomers = ctx.prisma.customer.findMany();

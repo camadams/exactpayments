@@ -2,7 +2,7 @@ import { Img } from "@react-email/img";
 import { Tailwind } from "@react-email/tailwind";
 import { addDays, format } from "date-fns";
 import * as React from "react";
-import { type BillCustomerResult } from "~/utils/businessLogic";
+import { type BillCustomerResult } from "~/server/api/routers/sale";
 
 // export const EmailTemplate: React.FC<EmailTemplateProps> = (props) => (
 //   <div className="flex flex-col items-center justify-center">

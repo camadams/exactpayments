@@ -117,21 +117,21 @@ import Nav from "~/components/nav";
 //     // <div className="flex w-full">
 //     //   <Nav />
 
-//     //   <div className="w-full flex flex-col items-center justify-center">
+//     //   <div className="flex flex-col items-center justify-center w-full">
 //     //     <h1 className="mb-4 text-2xl font-bold">September</h1>
 //     //     {/* <SpreadSheetComponent initialSpreadSheet={data} /> */}
 //     //     <div className="flex gap-4 my-4">
 //     //       {hasBilled ? (
 //     //         <>
-//     //           <button className="text-sm rounded-lg bg-green-400 hover:bg-green-700 hover:text-gray-100 w-20" onClick={() => generatePDF(document, "sample.pdf")}>
+//     //           <button className="w-20 text-sm bg-green-400 rounded-lg hover:bg-green-700 hover:text-gray-100" onClick={() => generatePDF(document, "sample.pdf")}>
 //     //             Download Pdf
 //     //           </button>
-//     //           <button className="rounded-lg bg-green-400 hover:bg-green-700 hover:text-gray-100 w-20" onClick={() => sendEmail(billResult)}>
+//     //           <button className="w-20 bg-green-400 rounded-lg hover:bg-green-700 hover:text-gray-100" onClick={() => sendEmail(billResult)}>
 //     //             Send
 //     //           </button>
 //     //         </>
 //     //       ) : (
-//     //         <button className="rounded-lg bg-green-400 hover:bg-green-700 hover:text-gray-100 w-20" onClick={() => calculateInvoiceLines(data)}>
+//     //         <button className="w-20 bg-green-400 rounded-lg hover:bg-green-700 hover:text-gray-100" onClick={() => calculateInvoiceLines(data)}>
 //     //           Bill
 //     //         </button>
 //     //       )}
@@ -183,9 +183,9 @@ function AuthShowcase() {
   const { data: sessionData } = useSession();
   return (
     <div className="flex flex-col items-center justify-center">
-      <p className="text-center text-2xl">{sessionData && <span>Logged in as {sessionData.user?.name}</span>}</p>
+      <p className="text-2xl text-center">{sessionData && <span>Logged in as {sessionData.user?.name}</span>}</p>
       <button
-        className="rounded-full bg-white/10 p-3 font-semibold no-underline transition hover:bg-slate-300/20"
+        className="p-3 font-semibold no-underline transition rounded-full bg-white/10 hover:bg-slate-300/20"
         onClick={sessionData ? () => void signOut() : () => void signIn("google", { callbackUrl: "/test" })}
       >
         {sessionData ? "Sign out" : "Sign in"}

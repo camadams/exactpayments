@@ -1,13 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
-import { TRPCClientErrorLike } from "@trpc/client";
-import { UseTRPCMutationOptions, UseTRPCMutationResult } from "@trpc/react-query/shared";
-import { inferProcedureInput } from "@trpc/server";
-import { inferTransformedProcedureOutput } from "@trpc/server/shared";
 import { compareAsc, format, isToday } from "date-fns";
 import React, { useState, useEffect, type ChangeEvent } from "react";
 import { type DateRange } from "react-day-picker";
-import { type SheetRow, type SpreadSheet, customers, products, getCustomerAndProductFromIndex } from "~/utils/businessLogic";
+import { type SpreadSheet } from "~/server/api/routers/sale";
+import { type SheetRow, getCustomerAndProductFromIndex } from "~/utils/businessLogic";
 
 interface Cell {
   row: number;
@@ -15,8 +12,8 @@ interface Cell {
 }
 
 interface SpreadSheetProps {
-  spreadSheet: SpreadSheet | null;
-  setSpreadSheet: React.Dispatch<React.SetStateAction<SpreadSheet | null>>;
+  spreadSheet: SpreadSheet;
+  setSpreadSheet: React.Dispatch<React.SetStateAction<SpreadSheet | undefined>>;
   date: DateRange | undefined;
   salesMutation: any;
 }
@@ -34,7 +31,7 @@ export default function App({ spreadSheet, setSpreadSheet, date, salesMutation }
         const newRow = activeCell.row + rowChange;
         const newCol = activeCell.col + colChange;
 
-        if (newRow >= 0 && newRow < spreadSheet!.rows.length && newCol >= 0 && newCol < spreadSheet!.rows[0]!.sales.length) {
+        if (newRow >= 0 && newRow < spreadSheet.rows.length && newCol >= 0 && newCol < spreadSheet.rows[0]!.sales.length) {
           setActiveCell({ row: newRow, col: newCol });
           handleOnBlur();
         }
@@ -69,33 +66,22 @@ export default function App({ spreadSheet, setSpreadSheet, date, salesMutation }
 
   const handleCellValueChange = (event: ChangeEvent<HTMLInputElement>, rowIndex: number, colIndex: number) => {
     const newValue = parseInt(event.target.value);
-    // Create a deep copy of the current state and update the quantity
-    const updatedSpreadSheet = {
-      rows: spreadSheet!.rows.map((row, currentRowIndex) => {
-        return currentRowIndex === rowIndex
-          ? {
-              date: row.date,
-              sales: row.sales.map((sale, currentColIndex) => ({
+    const updatedSpreadSheet: SpreadSheet = {
+      ...spreadSheet,
+      rows: spreadSheet.rows.map((row, i) => ({
+        ...row,
+        sales:
+          i === rowIndex
+            ? row.sales.map((sale, currentColIndex) => ({
                 ...sale,
                 quantity: currentColIndex === colIndex ? newValue : sale.quantity,
-              })),
-            }
-          : { ...row };
-      }),
+              }))
+            : [...row.sales],
+      })),
     };
 
-    // Update the state with the new spreadsheet
     setSpreadSheet(updatedSpreadSheet);
   };
-
-  // Function to update a single cell's quantity
-  const updateCell = (row: SheetRow, colIndex: number, newValue: number): SheetRow => ({
-    date: row.date,
-    sales: row.sales.map((sale, currentColIndex) => ({
-      ...sale,
-      quantity: currentColIndex === colIndex ? newValue : sale.quantity,
-    })),
-  });
 
   const handleOnBlur = () => {
     const sheetRow = spreadSheet?.rows[activeCell.row]!;
@@ -112,19 +98,19 @@ export default function App({ spreadSheet, setSpreadSheet, date, salesMutation }
     // });
 
     // alert("hi");
-    // if (isNaN(spreadSheet!.rows[activeCell.row]!.sales[activeCell.col]!.quantity)) {
-    //   const updatedGrid = [...spreadSheet!.rows];
+    // if (isNaN(spreadSheet.rows[activeCell.row]!.sales[activeCell.col]!.quantity)) {
+    //   const updatedGrid = [...spreadSheet.rows];
     //   updatedGrid[activeCell.row]!.sales[activeCell.col]!.quantity = 0;
-    //   spreadSheet!.rows = updatedGrid;
+    //   spreadSheet.rows = updatedGrid;
     //   setSpreadSheet(spreadSheet);
     // }
     // setActiveCell({ row: -1, col: -1 });
   };
 
   // const updateGridCell = (rowIndex: number, colIndex: number, val: number ) => {
-  //   const updatedGrid = [...spreadSheet!.rows];
+  //   const updatedGrid = [...spreadSheet.rows];
   //   updatedGrid[rowIndex]!.sales[colIndex]!.quantity = val;
-  //   spreadSheet!.rows = updatedGrid;
+  //   spreadSheet.rows = updatedGrid;
   //   setSpreadSheet(spreadSheet);
   // };
 
@@ -136,15 +122,19 @@ export default function App({ spreadSheet, setSpreadSheet, date, salesMutation }
   };
 
   // const x = [0, 0, 0, 0];
-  const numOfCustomers = new Array<number>(customers.length);
-
+  const numCustomers = spreadSheet.header.length;
+  const numProducts = spreadSheet.header[0]!.products.length;
+  const temp = new Array<number>(numCustomers);
+  const sheetWidth = (numProducts * numCustomers + 1) * 50;
+  const customers = spreadSheet.header.map((h) => h.customer);
+  const products = spreadSheet.header[0]!.products;
   return (
     <>
       {spreadSheet ? (
         <div className="max-w-full overflow-x-auto">
-          <div className="w-full bg-gray-400" style={{ width: `${(products.length * customers.length + 1) * 50}px` }}>
+          <div className="w-full bg-gray-400" style={{ width: `${sheetWidth}px` }}>
             <TopHeader />
-            <div className="table-container overflow-y-auto max-h-[500px]" style={{ scrollbarGutter: "stable" }}>
+            <div className="table-container overflow-y-auto max-h-[700px]" style={{ scrollbarGutter: "stable" }}>
               <table className="w-full border border-collapse table-fixed data-table">
                 <tbody>
                   {spreadSheet.rows
@@ -176,7 +166,7 @@ export default function App({ spreadSheet, setSpreadSheet, date, salesMutation }
             ))}
           </div>
           <div className="flex">
-            {[...numOfCustomers].map((_, j) => (
+            {[...temp].map((_, j) => (
               <div key={j} className="flex" style={{ width: `${100 / customers.length}%` }}>
                 {products.map((product, i) => (
                   <div key={i} className="p-1 text-xs border" style={{ width: `${100 / products.length}%` }}>
