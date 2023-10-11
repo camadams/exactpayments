@@ -3,7 +3,7 @@ import { addDays } from 'date-fns';
 import { api, type RouterOutputs } from './api';
 /* eslint-disable @typescript-eslint/prefer-for-of */
 import generatePDF from './generatePDF';
-import { BillCustomerResult } from '~/server/api/routers/sale';
+import { type BillCustomerResult } from '~/server/api/routers/sale';
 
 export const customers = [
     { name: "Customer 1", emailAddress: "customer1@gmail.com" },
