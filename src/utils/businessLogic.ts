@@ -176,4 +176,4 @@ export function getMyDate(datedate: number) {
     return new Date(now.getFullYear(), now.getMonth(), now.getDate())
 }
 
-// console.log(getDates(new Date(2023, 8, 1), new Date(2023, 8, 30)))
+// consolew.log(getDates(new Date(2023, 8, 1), new Date(2023, 8, 30)))
