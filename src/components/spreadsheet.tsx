@@ -61,6 +61,7 @@ export default function App({ spreadSheet, setSpreadSheet, date, salesMutation }
     return () => {
       window.removeEventListener("keydown", handleArrowKeys);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCell, spreadSheet]);
 
   const handleCellClick = (rowIndex: number, colIndex: number) => {
