@@ -19,7 +19,7 @@ interface SpreadSheetProps {
 }
 
 export default function App({ spreadSheet, setSpreadSheet, date, salesMutation }: SpreadSheetProps) {
-  // const [spreadSheet, setSpreadSheet] = useState<SpreadSheet>(spreadSheet);
+  // const <div spreadSheet,="" setSpreadSheet=""></div> = useState<SpreadSheet>(spreadSheet);
   const [activeCell, setActiveCell] = useState<Cell>({ row: -1, col: -1 });
   // const tableRef: RefObject<HTMLTableElement> = React.createRef();
 
@@ -123,16 +123,16 @@ export default function App({ spreadSheet, setSpreadSheet, date, salesMutation }
 
   // const x = [0, 0, 0, 0];
   const numCustomers = spreadSheet.header.length;
-  const numProducts = spreadSheet.header[0]!.products.length;
+  const numProducts = spreadSheet.header[0] ? spreadSheet.header[0].products.length : 0;
   const temp = new Array<number>(numCustomers);
-  const sheetWidth = (numProducts * numCustomers + 1) * 50;
+  const sheetWidth = (numProducts * numCustomers + 1) * 100;
   const customers = spreadSheet.header.map((h) => h.customer);
   const products = spreadSheet.header[0]!.products;
   return (
     <>
       {spreadSheet ? (
         <div className="max-w-full overflow-x-auto">
-          <div className="w-full bg-gray-400" style={{ width: `${sheetWidth}px` }}>
+          <div className="w-full bg-cyan-400" style={{ width: `${sheetWidth}px` }}>
             <TopHeader />
             <div className="table-container overflow-y-auto max-h-[700px]" style={{ scrollbarGutter: "stable" }}>
               <table className="w-full border border-collapse table-fixed data-table">
@@ -157,7 +157,7 @@ export default function App({ spreadSheet, setSpreadSheet, date, salesMutation }
     return (
       <div className="flex">
         <div style={{ minWidth: "80px" }}></div> {/*filler */}
-        <div className="w-full pr-4" style={{ scrollbarGutter: "stable" }}>
+        <div className="w-full pr-4">
           <div className="flex ">
             {customers.map((customer, i) => (
               <div key={i} className="w-full p-2 border">

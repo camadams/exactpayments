@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { cn } from "~/lib/utils";
-import { Button } from "~/components/button";
+import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/calendar";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "~/components/form";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
@@ -51,7 +51,7 @@ export default function DatePickerForm() {
                   <FormControl>
                     <Button variant={"outline"} className={cn("w-[240px] pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
                       {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      <CalendarIcon className="w-4 h-4 ml-auto opacity-50" />
                     </Button>
                   </FormControl>
                 </PopoverTrigger>

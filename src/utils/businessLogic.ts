@@ -172,8 +172,8 @@ export function getCustomerAndProductFromIndex(index: number) {
 }
 
 export function getMyDate(datedate: number) {
-    const date = new Date();
-    return new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate())
 }
 
 // console.log(getDates(new Date(2023, 8, 1), new Date(2023, 8, 30)))

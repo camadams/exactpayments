@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import SpreadSheetComponent from "~/components/spreadsheet2";
 import { sendEmail, convertSalesToSpreadsheet, SheetRow } from "~/utils/businessLogic";
-import Nav from "~/components/nav";
 import generatePDF from "~/utils/generatePDF";
 import { InvoicesPreview } from "~/components/InvoicesPreview";
 
@@ -12,10 +11,10 @@ import { type DateRange } from "react-day-picker";
 import { CalendarDateRangePicker } from "~/components/date-range-picker";
 import { api, type RouterOutputs, type RouterInputs } from "~/utils/api";
 import { useSession } from "next-auth/react";
-import { z } from "zod";
 
 import { type SpreadSheet, type BillCustomerResult } from "~/server/api/routers/sale";
 import Link from "next/link";
+import { AuthShowcase } from "~/components/AuthShowcase";
 
 function Home() {
   type a = RouterOutputs["sale"]["getAllSalesBetweenFromAndTo"];
@@ -27,28 +26,35 @@ function Home() {
     to: addDays(startOfDay(new Date()), 7),
   });
 
-  const { data } = useSession();
-  const { data: salesFromDB, refetch } = api.sale.getSpreadSheetFromAndToByUserId.useQuery({ from: date?.from, to: date?.to }, { refetchInterval: false, refetchOnWindowFocus: false });
+  const [isSelling, setIsSelling] = useState(false);
+
+  const { data: sesh } = useSession();
+
   const salesMutation = api.sale.create.useMutation({ onSuccess: () => console.log("successfull creation") });
+
+  const { data: spreadSheetFromDB } = api.sale.getSpreadSheetFromAndToByUserId.useQuery(
+    { from: date?.from, to: date?.to, userId: sesh?.user.id, isSelling: true },
+    { refetchInterval: false, refetchOnWindowFocus: false },
+  );
+
   useEffect(() => {
-    if (salesFromDB && date) {
-      console.log(salesFromDB);
-      setSpreadSheet(salesFromDB);
+    if (spreadSheetFromDB && date) {
+      setSpreadSheet(spreadSheetFromDB);
     }
-  }, [salesFromDB]);
+  }, [date, spreadSheetFromDB]);
 
-  const billMutation = api.sale.bill2.useMutation();
+  const { data: freshBillResult, mutate: doBillMutation } = api.sale.bill2.useMutation();
 
-  const handleButtonClicked = () => {
+  const handleBillClicked = () => {
     if (spreadSheet) {
-      billMutation.mutate({ ...spreadSheet });
+      doBillMutation({ ...spreadSheet });
       setHasBilled(false);
     }
   };
 
-  if (billMutation.data && !hasBilled) {
+  if (freshBillResult && !hasBilled) {
     setHasBilled(true);
-    setBillResultt(billMutation.data);
+    setBillResultt(freshBillResult);
   }
 
   function saveSheet() {
@@ -59,14 +65,23 @@ function Home() {
       customerId: 2,
     });
   }
-
+  if (!sesh?.user.id) {
+    return <AuthShowcase />;
+  }
   return (
     <div className="flex w-full px-2">
       <div className="absolute top-0 bg-green-300 bg-opacity-50 rounded-lg w-15 ">{salesMutation.isLoading ? "Saving..." : "Auto Saved"}</div>
       <div className="flex flex-col items-center w-full">
+        <button onClick={() => setIsSelling((prev) => !prev)} className="w-20 h-10 text-xs bg-green-400 rounded-lg hover:bg-green-700 hover:text-gray-100">
+          {isSelling ? "I am selling" : "I am buying"}
+        </button>
+
         <div className="flex">
           <CalendarDateRangePicker className={""} setDate={setDate} date={date} />
-          <Link href="/settings" className="absolute top-0 right-0 bg-yellow-300 w-20 h-10 rounded-lg">
+          <Link href="/connections" className="absolute top-0 w-20 h-10 bg-yellow-300 rounded-lg right-20">
+            Connections
+          </Link>
+          <Link href="/settings" className="absolute top-0 right-0 w-20 h-10 bg-yellow-300 rounded-lg">
             Settings
           </Link>
         </div>
@@ -87,7 +102,7 @@ function Home() {
             </>
           ) : (
             <>
-              <button className="w-20 h-10 bg-green-400 rounded-lg hover:bg-green-700 hover:text-gray-100" onClick={() => handleButtonClicked()}>
+              <button className="w-20 h-10 bg-green-400 rounded-lg hover:bg-green-700 hover:text-gray-100" onClick={() => handleBillClicked()}>
                 Bill
               </button>
             </>

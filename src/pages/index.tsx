@@ -29,25 +29,6 @@ import Nav from "~/components/nav";
 
 // export const initialSpreadSheet: SpreadSheet = {
 //   rows: [
-//     { date: new Date(), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-//     { date: addDays(new Date(), 1), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-//     { date: addDays(new Date(), 2), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-//     { date: addDays(new Date(), 3), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-//     { date: addDays(new Date(), 4), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-//     { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-//     { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-//     { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-//     { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-//     { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-//     { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-//     { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-//     { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-//     { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-//     { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-//     { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-//     { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-//     { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-//     { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
 //   ],
 // };
 
@@ -157,12 +138,6 @@ import Nav from "~/components/nav";
 
 // //   const initialSpreadSheet: SpreadSheet = {
 // //     rows: [
-// //       { date: new Date(), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-// //       { date: addDays(new Date(), 1), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-// //       { date: addDays(new Date(), 2), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-// //       { date: addDays(new Date(), 3), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-// //       { date: addDays(new Date(), 4), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
-// //       { date: addDays(new Date(), 5), sales: [...new Array<Sale>(customers.length * products.length).fill({ quantity: 0 })] },
 // //     ],
 // //   };
 

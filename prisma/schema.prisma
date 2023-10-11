@@ -39,6 +39,7 @@ model Account {
     user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([provider, providerAccountId])
+    @@index([userId])
 }
 
 model Session {
@@ -47,17 +48,46 @@ model Session {
     userId       Int
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
 }
 
 model User {
-    id            Int       @id @default(autoincrement())
+    id            Int           @id @default(autoincrement())
     name          String?
-    email         String?   @unique
+    email         String?       @unique
     emailVerified DateTime?
     image         String?
     accounts      Account[]
     sessions      Session[]
+    // SellingTo     Connection[] @relation("SellingTo")
+    // BuyingFrom    Connection[] @relation("BuyingFrom")
+    // Connection    Connection[]
+    SellingTo     Connection[]  @relation("SellingTo")
+    BuyingFrom    Connection[]  @relation("BuyingFrom")
+    DiscordDemo   DiscordDemo[]
 }
+
+model Connection {
+    id             Int  @id @default(autoincrement())
+    sellingUser    User @relation("SellingTo", fields: [sellingUserId], references: [id])
+    sellingUserId  Int
+    buyingUser     User @relation("BuyingFrom", fields: [buyingUserId], references: [id])
+    buyingUserId   Int
+    status         Int
+    sentFromUserId Int
+
+    @@index([sellingUserId])
+    @@index([buyingUserId])
+}
+
+// model Connection {
+//     id              Int  @id @default(autoincrement())
+//     sellingToUser   User @relation("SellingTo", fields: [sellingToUserId], references: [id])
+//     buyingFromUser  User @relation("BuyingFrom", fields: [userIds], references: [id])
+//     sellingToUserId Int
+//     userIds         Int
+// }
 
 model VerificationToken {
     identifier String
@@ -71,6 +101,7 @@ model Product {
     id        Int      @id @default(autoincrement())
     name      String
     unitPrice Int
+    userId    Int      @default(1)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
@@ -116,4 +147,15 @@ model InvoiceLine {
     total                Int
     BillCustomerResult   BillCustomerResult? @relation(fields: [billCustomerResultId], references: [id])
     billCustomerResultId Int?
+
+    @@index([billCustomerResultId])
+}
+
+model DiscordDemo {
+    id     Int    @id @default(autoincrement())
+    abc    String
+    xyz    User   @relation(fields: [userId], references: [id])
+    userId Int
+
+    @@index([userId])
 }
