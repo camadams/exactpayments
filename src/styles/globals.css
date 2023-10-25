@@ -4,6 +4,8 @@
  
 @layer base {
   :root {
+
+    --sheets-primary: rgb(9, 255, 0);
     --background: 0 0% 100%;
     --foreground: 224 71.4% 4.1%;
 
@@ -71,7 +73,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-slate-500 text-foreground;
+    @apply min-h-screen bg-slate-500 text-foreground;
   }
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {

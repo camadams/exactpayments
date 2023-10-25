@@ -1,50 +1,30 @@
 import { type RouterOutputs, api } from "~/utils/api";
-import format from "date-fns/format";
-import { GetServerSideProps } from "next";
-import { useEffect } from "react";
-type Example = RouterOutputs["example"]["getAll"][number];
-
-// const SalesTest = ({ b }: { b: Example[] }) => {
 const SalesTest = () => {
-  const todayDate = new Date();
+  const { data: freshBillResult, mutate: dodo } = api.user.createTestData.useMutation();
+  const { data: frontt, mutate: front } = api.user.createTestDataFront.useMutation();
+  const { data: datess } = api.user.getWhereId.useQuery();
 
-  // useEffect(() => {
-  //   const b = api.example.getAllBeforeDate.useQuery({ date: todayDate });
-  //   console.log(b);
-  // }, []);
-  // const today = format(todayDate, "dd-mm-yyyy");
-  // const b = api.example.getAllBeforeDate.useQuery({ date: todayDate });
-  const b = api.example.getAll.useQuery();
-  console.log("example datatatatt:", b.data);
-  console.log("example . data is undefined ?:", b.data === undefined);
-  console.log("example . data first element ?:", b.data?.[0]);
-  // const b = api.example.getByUsername.useQuery({ username: "alice" });
-  // const b = api.example.getAll.useQuery();
+  const handlepopo = () => {
+    dodo();
+  };
+
+  const handleFront = () => {
+    const noww = new Date();
+    console.log({ noww });
+    front({ time: noww });
+  };
   return (
-    <div className="flex w-full h-screen">
-      {/* <div>{a.data?.greeting}</div> */}
-      {/* {b.data?.map((x, i) => <div key={i}>{format(x.username, "dd-mm-yyyy")}</div>)} */}
-      {b.data?.map((x, i) => <div key={i}>{x.username} **** </div>)}
-      <div> {b.data === undefined ? "yes" : "no"}</div>
-      {/* <div>{today}</div> */}
-      {/* <div>{b.data?}</div> */}
+    <div className="flex flex-col gap-4 bg-white">
+      <button className="bg-red-300 h-fit w-fit" onClick={() => handlepopo()}>
+        Create with now on back end
+      </button>
+      <button className="bg-red-300 h-fit w-fit" onClick={() => handleFront()}>
+        Create with now on front end
+      </button>
+      {/* {datess?.map((date, i) => <pre key={i}>{JSON.stringify(date, null, "\t")}</pre>)} */}
+      <pre>{JSON.stringify(datess, null, "\t")}</pre>
     </div>
   );
 };
 
-// export function getServerSideProps() {
-//   a.data?.map((x) => console.log(x.createdAt));
-//   return { props: { test: a.data } };
-// }
-
 export default SalesTest;
-
-// eslint-disable-next-line @typescript-eslint/require-await
-// export async function getServerSideProps() {
-//   // const res = await fetch(`https://.../data`);
-//   // const data: any = await res.json();
-
-//   const { data } = api.example.getAll.useQuery();
-
-//   return { props: { data } };
-// }

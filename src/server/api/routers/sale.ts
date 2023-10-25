@@ -5,12 +5,14 @@ import { type Prisma, type PrismaClient } from '@prisma/client';
 import { z } from "zod";
 import {
   createTRPCRouter,
+  protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
 import type { DefaultArgs } from '@prisma/client/runtime/library';
 import { type RouterOutputs } from '~/utils/api';
 import { addDays, addHours, isSameDay, compareAsc, format } from 'date-fns';
 import type { Session } from 'next-auth';
+import { TRPCError } from '@trpc/server';
 // import { InvoiceLine } from "~/utils/businessLogic";
 
 const cellSchema = z.object({
@@ -74,22 +76,20 @@ export interface BillCustomerResult {
 }
 
 type User = Session["user"];
-const user = {} as User;
 // user.
 
 
 export type SpreadSheet = z.infer<typeof spreadsheetSchema>;
-type SheetRow = z.infer<typeof sheetRowSchema>;
+export type SheetRow = z.infer<typeof sheetRowSchema>;
 type InvoiceLine = z.infer<typeof invoiceLineSchema>;
-type Cell = z.infer<typeof cellSchema>;
+export type CellType = z.infer<typeof cellSchema>;
 
-type Sale = RouterOutputs["sale"]["getAllSalesBetweenFromAndTo"][number];
+export type Sale = RouterOutputs["sale"]["getAllSalesBetweenFromAndTo"][number];
 type Product = z.infer<typeof productSchema>;
 type Customer = z.infer<typeof customerSchema>;
 type Business = z.infer<typeof businessSchema>;
+type PrismaType = PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>
 
-
-const aaa = z.custom<Cell>();
 export const saleRouter = createTRPCRouter({
   // hello: publicProcedure
   //   .input(z.object({ text: z.string() }))
@@ -108,42 +108,27 @@ export const saleRouter = createTRPCRouter({
       return saless;
     }),
 
-  getAllSalesBetweenFromAndToByUserId: publicProcedure
-    .input(z.object({ from: z.date().nullish(), to: z.date().nullish(), userId: z.number().optional() }))
-    .query(({ ctx, input }) => {
-      // input.to = input.to ?? input.from;
-      // if(from === undefined) { 
-      const saless = ctx.prisma.sale.findMany({
-        where: {
-          saleDate: { gte: input.from ?? undefined, lte: input.to ?? undefined },
-          userId: input.userId
-        }
-      })
-      return saless;
-    }),
+  // getAllSalesBetweenFromAndToByUserId: publicProcedure
+  //   .input(z.object({ from: z.date().nullish(), to: z.date().nullish(), userId: z.number().optional() }))
+  //   .query(({ ctx, input }) => {
+  //     // input.to = input.to ?? input.from;
+  //     // if(from === undefined) { 
+  //     const saless = ctx.prisma.sale.findMany({
+  //       where: {
+  //         saleDate: { gte: input.from ?? undefined, lte: input.to ?? undefined },
+  //         userId: input.userId
+  //       }
+  //     })
+  //     return saless;
+  //   }),
 
-  getSpreadSheetFromAndToByUserId: publicProcedure
-    .input(z.object({ from: z.date().nullish(), to: z.date().nullish(), userId: z.number().nullish(), isSelling: z.boolean() }))
+  getSpreadSheetFromAndTo: protectedProcedure
+    .input(z.object({ from: z.date().nullish(), to: z.date().nullish(), isSelling: z.boolean() }))
     .query(async ({ ctx, input }) => {
       // input.to = input.to ?? input.from;
       // if(from === undefined) { 
-      let { from, to, userId } = input
-      console.log({ userId })
-      let convertedSpreadSheet = null;
-
-      userId = 1;
-
-      const saless = await ctx.prisma.sale.findMany({
-        where: {
-          saleDate: { gte: from ?? undefined, lte: to ?? undefined },
-          userId: userId
-        }
-      })
-
-      if (saless && from && to)
-        convertedSpreadSheet = await convertSalesToSpreadsheet(saless, from, to, null, ctx.prisma);
-
-      return convertedSpreadSheet;
+      let { from, to, isSelling } = input
+      return getConvertedSpreadSheet(from, to, ctx.session.user.id, ctx.prisma);
     }),
 
   bill: publicProcedure
@@ -156,37 +141,54 @@ export const saleRouter = createTRPCRouter({
   bill2: publicProcedure
     .input(spreadsheetSchema)
     .mutation(async ({ input, ctx }) => {
-      return await bill(input, ctx.prisma);;
+      return await bill(input, ctx.prisma);
+    }),
+
+  billDateInput: publicProcedure
+    .input(z.object({ from: z.date().nullish(), to: z.date().nullish(), userId: z.number().nullish() }))
+    .mutation(async ({ input, ctx }) => {
+      const { from, to, userId } = input
+      const spreadSheet = await getConvertedSpreadSheet(from, to, userId, ctx.prisma);
+      return await bill(spreadSheet, ctx.prisma);;
     }),
 
 
-  getAll: publicProcedure.query(({ ctx }) => {
-    const a = ctx.prisma.example.findMany();
-    return a;
-  }),
+  // getAll: publicProcedure.query(({ ctx }) => {
+  //   const a = ctx.prisma.example.findMany();
+  //   return a;
+  // }),
 
-  getForMonth: publicProcedure.query(({ ctx }) => {
-    const a = ctx.prisma.sale.findMany();
-    return a;
-  }),
+  // getForMonth: publicProcedure.query(({ ctx }) => {
+  //   const a = ctx.prisma.sale.findMany();
+  //   return a;
+  // }),
 
-  getForMontsfredafdsh: publicProcedure.query(({ ctx }) => {
-    const a = ctx.prisma.product.findMany();
-    return a;
-  }),
+  // getForMontsfredafdsh: publicProcedure.query(({ ctx }) => {
+  //   const a = ctx.prisma.product.findMany();
+  //   return a;
+  // }),
 
-  create: publicProcedure
-    .input(z.object({ saleDate: z.date(), quantity: z.number(), productId: z.number().min(1), customerId: z.number(), }))
-    .mutation(({ ctx, input }) => {
-      return ctx.prisma.sale.create({
-        data: {
-          saleDate: input.saleDate,
-          quantity: input.quantity,
-          productId: input.productId,
-          customerId: input.customerId,
-          userId: 1,
-        }
-      });
+  createOrUpdate: protectedProcedure
+    .input(z.object({ saleDate: z.date(), quantity: z.number(), productId: z.number().min(1), customerId: z.number(), rowIndex: z.number(), colIndex: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const { saleDate, quantity, productId, customerId } = input;
+      const userId = ctx.session.user.id;
+      // return new TRPCError({ code: "BAD_REQUEST" });
+      const existingSale = await ctx.prisma.sale.findFirst({ where: { AND: [{ productId, customerId, saleDate, userId }] } });
+      if (!existingSale) {
+        return ctx.prisma.sale.create({
+          data: {
+            saleDate,
+            quantity,
+            productId,
+            customerId,
+            userId,
+          }
+        });
+      } else {
+        return ctx.prisma.sale.update({ where: { id: existingSale.id }, data: { quantity } })
+      }
+
     }),
 
   tata: publicProcedure
@@ -201,20 +203,21 @@ export const saleRouter = createTRPCRouter({
 });
 
 
-const bill = async (spreadSheet: SpreadSheet, prisma: PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>): Promise<BillCustomerResult[]> => {
+const bill = async (spreadSheet: SpreadSheet | null, prisma: PrismaType): Promise<BillCustomerResult[]> => {
 
   // if (!spreadSheet.rows[0])
   //   return [];
+  if (!spreadSheet) return [];
   console.log("inside bill function on server");
   const custProdLength = spreadSheet.rows[0]!.sales.length;
   const accum: number[] = [...new Array<number>(custProdLength).fill(0)];
 
-  const customers = await prisma.customer.findMany({ orderBy: { id: "asc" } });
+  // const customers = await prisma.customer.findMany({ orderBy: { id: "asc" } });
+  const connectionsWhereIAmSelling = await prisma.connection.findMany({ where: { sellingUserId: 1 } }) //todo
+  const usersThatAreBuyingFromMe = await getUsersFromConnections(connectionsWhereIAmSelling, prisma);
+
   const products = await prisma.product.findMany();
-
-  console.log({ customers });
-  console.log({ products });
-
+  console.log(JSON.stringify(spreadSheet, null, 4));
   for (let x = 0; x < custProdLength; x++) {
     for (const row of spreadSheet.rows) {
       accum[x] += row.sales[x]!.quantity;
@@ -222,7 +225,7 @@ const bill = async (spreadSheet: SpreadSheet, prisma: PrismaClient<Prisma.Prisma
   }
   const allCustomersBillResult = []
   let i = 0;
-  for (const customer of customers) {
+  for (const customer of usersThatAreBuyingFromMe) {
 
     let grandTotal = 0;
     const invoiceLines = [];
@@ -277,38 +280,31 @@ Emz x`,
 };
 
 
-async function convertSalesToSpreadsheet(sales: Sale[], from: Date, to: Date, liveSpreadSheet: SpreadSheet | null, prisma: PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>): Promise<SpreadSheet> {
+async function convertSalesToSpreadsheet(sales: Sale[], from: Date, to: Date, liveSpreadSheet: SpreadSheet | null, prisma: PrismaType, isSelling: boolean, userId: number): Promise<SpreadSheet> {
   const products = await prisma.product.findMany();
-  let customers = await prisma.customer.findMany({ orderBy: { id: "asc" } });
+  // let customers = await prisma.customer.findMany({ orderBy: { id: "asc" } });
 
-  const connectionsWhereIAmSelling = await prisma.connection.findMany({ where: { sellingUserId: 1 } })
-  const usersThatAreBuyingFromMe: Session["user"][] = await getUsersFromConnections(connectionsWhereIAmSelling, prisma);
-
-  const customer: Customer = {
-    name: "All Customers",
-    email: "jojo@gmail.com",
-    invoicePrefix: "INV",
-  }
-  const emptySheetRows: SheetRow[] = null ?? initEmptySheetRows(from, to, products, customers);
+  const connections = await prisma.connection.findMany({ where: isSelling ? { sellingUserId: userId } : { buyingUserId: userId } })
+  const userConnections = await getUsersFromConnections(connections, prisma);
+  const emptySheetRows: SheetRow[] = null ?? initEmptySheetRows(from, to, products, userConnections);
   const rows: SheetRow[] = addSalesToEmptyRows(sales, emptySheetRows);
-  const header: Business[] = initBusinesss(customers, products);
-  const a: Session['user'] = { id: 1 };
+  const header: Business[] = initBusinesss(userConnections, products);
   return { header, rows }
 }
 
-type MyConnection = RouterOutputs["connection"]["getAll"][number];
 
-async function getUsersFromConnections(connectionsWhereIAmSelling: MyConnection[], prisma: PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>): Promise<Session["user"][]> {
-  const usersThatAreBuyingFromMe: Session["user"][] = [];
+type MyConnection = RouterOutputs["connection"]["getAll"][number];
+async function getUsersFromConnections(connectionsWhereIAmSelling: MyConnection[], prisma: PrismaType): Promise<Customer[]> {
+
+  const usersThatAreBuyingFromMe = [];
 
   for (const connectionWhereIAmSelling of connectionsWhereIAmSelling) {
-
     const userThatIsBuyingFromMe = await prisma.user.findFirst({ where: { id: connectionWhereIAmSelling.buyingUserId } });
-
-    if (userThatIsBuyingFromMe) { usersThatAreBuyingFromMe.push(userThatIsBuyingFromMe); }
+    if (userThatIsBuyingFromMe) {
+      usersThatAreBuyingFromMe.push({ name: userThatIsBuyingFromMe.name!, email: userThatIsBuyingFromMe.email!, invoicePrefix: "hi" });
+    }
 
   }
-
   return usersThatAreBuyingFromMe;
 }
 
@@ -316,7 +312,7 @@ function initEmptySheetRows(startDate: Date, stopDate: Date, products: Product[]
   const days: Date[] = getDatesBetween(startDate, stopDate);
   const rows: SheetRow[] = [];
   for (const day of days) {
-    const sales = new Array<Cell>(customers.length * products.length);
+    const sales = new Array<CellType>(customers.length * products.length);
     for (let i = 0; i < customers.length * products.length; i++) {
       sales[i] = { quantity: 0 };
     }
@@ -372,4 +368,23 @@ function initBusinesss(customers: Customer[], products: Product[]): Business[] {
 }
 
 
+
+async function getConvertedSpreadSheet(from: Date | null | undefined, to: Date | null | undefined, userId: number | null | undefined, prisma: PrismaType): Promise<SpreadSheet | null> {
+  let convertedSpreadSheet = null;
+  if (userId) {
+    const saless = await prisma.sale.findMany({
+      where: {
+        saleDate: { gte: from ?? undefined, lte: to ?? undefined },
+        userId
+      }
+    })
+
+    if (saless && from && to) {
+      convertedSpreadSheet = await convertSalesToSpreadsheet(saless, from, to, null, prisma, true, userId);
+    }
+
+  }
+
+  return convertedSpreadSheet
+}
 

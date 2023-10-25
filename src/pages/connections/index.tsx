@@ -12,7 +12,10 @@ export enum connectionStatuss {
 export default function App() {
   const { data: sesh } = useSession();
   // const { data: connections, isLoading } = api.connection.getConnectionsByUserId.useQuery({ userId: userId });
-  const { data: connectionsIAmSellingTo, isLoading: isLoadingBuyingFromMe } = api.connection.getMyConnectionsWhereIAmX.useQuery({ userId: sesh?.user.id, isSelling: true });
+  const { data: connectionsIAmSellingTo, isLoading: isLoadingBuyingFromMe } = api.connection.getMyConnectionsWhereIAmX.useQuery({
+    userId: sesh?.user.id,
+    isSelling: true,
+  });
   const { data: connectionsIAmBuyingFrom } = api.connection.getMyConnectionsWhereIAmX.useQuery({ userId: sesh?.user.id, isSelling: false });
   const updateMutation = api.connection.updateStatus.useMutation({
     onSettled(data, error, variables, context) {
@@ -48,7 +51,10 @@ export default function App() {
   function AcceptOrReject({ connectionId }: { connectionId: number }) {
     return (
       <>
-        <button className="p-1 mr-1 bg-green-300 rounded-lg hover:bg-green-200" onClick={() => handleUpdate(connectionId, connectionStatuss.ACCEPTED)}>
+        <button
+          className="p-1 mr-1 bg-green-300 rounded-lg hover:bg-green-200"
+          onClick={() => handleUpdate(connectionId, connectionStatuss.ACCEPTED)}
+        >
           accept
         </button>
         <button className="p-1 bg-pink-300 rounded-lg hover:bg-pink-200" onClick={() => alert("not implemented yet")}>
@@ -64,16 +70,16 @@ export default function App() {
 
   return (
     <div className="p-6">
-      <div className="p-4 mb-4 rounded-lg bg-slate-300">
+      <div className="p-2 mb-4 rounded-lg bg-slate-300">
         <h1 className="p-2 rounded-sm bg-slate-400">I am buying from:</h1>
         {connectionsIAmBuyingFrom && connectionsIAmBuyingFrom.length !== 0 ? (
           <table>
             <thead>
               <tr>
-                <th className="p-4 border-2 border-slate-800">Name</th>
-                <th className="p-4 border-2 border-slate-800">Email</th>
-                <th className="p-4 border-2 border-slate-800">Photo</th>
-                <th className="p-4 border-2 border-slate-800">Status</th>
+                <th className="px-2 border-2 border-slate-800">Name</th>
+                <th className="px-2 border-2 border-slate-800">Email</th>
+                <th className="px-2 border-2 border-slate-800">Photo</th>
+                <th className="px-2 border-2 border-slate-800">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -85,7 +91,7 @@ export default function App() {
                     {/* <Image src={connection?.image} alt="Hi" width={80} height={80} /> */}
                     <Image src="https://picsum.photos/300/300" alt="Hi" width={80} height={80} />
                   </td>
-                  <td className="p-4 border-2 border-slate-800">{getDisplayValue(connect.status, connect.sentFromUserId, connect.id)}</td>
+                  <td className="px-2 border-2 border-slate-800">{getDisplayValue(connect.status, connect.sentFromUserId, connect.id)}</td>
                 </tr>
               ))}
             </tbody>
@@ -95,37 +101,39 @@ export default function App() {
         )}
       </div>
 
-      <div className="p-4 mb-4 rounded-lg bg-slate-300">
+      <div className="p-2 mb-4 rounded-lg bg-slate-300">
         <h1 className="p-2 rounded-sm bg-slate-400">I am selling to:</h1>
         {connectionsIAmSellingTo && connectionsIAmSellingTo.length !== 0 ? (
-          <table>
-            <thead>
-              <tr>
-                <th className="p-4 border-2 border-slate-800">Name</th>
-                <th className="p-4 border-2 border-slate-800">Email</th>
-                <th className="p-4 border-2 border-slate-800">Photo</th>
-                <th className="p-4 border-2 border-slate-800">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {connectionsIAmSellingTo?.map((connect) => (
-                <tr key={connect?.id}>
-                  <td className="p-4 border-2 border-slate-800">{connect?.name}</td>
-                  <td className="p-4 border-2 border-slate-800">{connect?.email}</td>
-                  <td className="p-4 border-2 border-slate-800">
-                    {/* <Image src={connection?.image} alt="Hi" width={80} height={80} /> */}
-                    <Image src="https://picsum.photos/300/300" alt="Hi" width={80} height={80} />
-                  </td>
-                  <td className="p-4 border-2 border-slate-800">{getDisplayValue(connect.status, connect.sentFromUserId, connect.id)}</td>
+          <>
+            <table>
+              <thead>
+                <tr>
+                  <th className="px-2 border-2 border-slate-800">Name</th>
+                  <th className="px-2 border-2 border-slate-800">Email</th>
+                  <th className="px-2 border-2 border-slate-800">Photo</th>
+                  <th className="px-2 border-2 border-slate-800">Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {connectionsIAmSellingTo?.map((connect) => (
+                  <tr key={connect?.id}>
+                    <td className="px-2 border-2 border-slate-800">{connect?.name}</td>
+                    <td className="px-2 border-2 border-slate-800">{connect?.email}</td>
+                    <td className="px-2 border-2 border-slate-800">
+                      {/* <Image src={connection?.image} alt="Hi" width={80} height={80} /> */}
+                      <Image src="https://picsum.photos/300/300" alt="Hi" width={80} height={80} />
+                    </td>
+                    <td className="px-2 border-2 border-slate-800">{getDisplayValue(connect.status, connect.sentFromUserId, connect.id)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <DialogDemo />
+          </>
         ) : (
           <h1>No one</h1>
         )}
       </div>
-      <DialogDemo />
     </div>
   );
 }

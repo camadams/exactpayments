@@ -5,23 +5,29 @@ import { CalendarIcon } from "@radix-ui/react-icons";
 import { addDays, format } from "date-fns";
 import { type DateRange } from "react-day-picker";
 
-import { Button } from "~/registry/new-york/ui/button";
-import { Calendar } from "~/registry/new-york/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "~/registry/new-york/ui/popover";
 import { cn } from "~/utils/utils";
+import { addTimezoneOffset } from "~/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Button } from "./ui/button";
+import { Calendar } from "./calendar";
 
 interface CalendarDateRangePickerProps {
   className?: string;
   setDate: React.Dispatch<React.SetStateAction<DateRange | undefined>>;
   date: DateRange | undefined;
+  disabledYes: boolean;
 }
-
-export function CalendarDateRangePicker({ className, setDate, date }: CalendarDateRangePickerProps) {
+export function CalendarDateRangePicker({ className, setDate, date, disabledYes }: CalendarDateRangePickerProps) {
   return (
     <div className={cn("grid gap-2", className)}>
       <Popover>
         <PopoverTrigger asChild>
-          <Button id="date" variant={"outline"} className={cn("w-[260px] justify-start text-left font-normal", !date && "text-muted-foreground")}>
+          <Button
+            disabled={disabledYes}
+            id="date"
+            variant={"outline"}
+            className={cn("w-[260px] justify-start text-left font-normal", !date && "text-muted-foreground")}
+          >
             <CalendarIcon className="w-4 h-4 mr-2" />
             <div className="text-xs">
               {date?.from ? (

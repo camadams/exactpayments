@@ -37,12 +37,12 @@ export function DialogDemo() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Edit Profile</Button>
+        <Button variant="outline">Add</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Edit profile</DialogTitle>
-          <DialogDescription>Make changes to your profile here. Click save when youre done.</DialogDescription>
+          <DialogTitle>Add connection</DialogTitle>
+          {/* <DialogDescription>Make changes to your profile here. Click save when youre done.</DialogDescription> */}
         </DialogHeader>
         {/* <div className="grid gap-4 py-4">
           <div className="grid items-center grid-cols-4 gap-4">
@@ -51,17 +51,19 @@ export function DialogDemo() {
             </Label>
             <Input id="name" value="Pedro Duarte" className="col-span-3" />
           </div>*/}
-        {usersExceptMeAndNotSellingTo.map((user, i) => (
-          <div key={i} className="flex justify-between">
-            <div className="">{user.email}</div>
-            <button onClick={() => handleCreateConnection(i)} className="p-2 bg-green-400 rounded-xl">
-              Add
-            </button>
-          </div>
-        ))}
-        <DialogFooter>
-          <Button type="submit">Save changes</Button>
-        </DialogFooter>
+        {usersExceptMeAndNotSellingTo.length === 0 ? (
+          <div>You are connected to everyone</div>
+        ) : (
+          usersExceptMeAndNotSellingTo.map((user, i) => (
+            <div key={i} className="flex justify-between">
+              <div className="">{user.email}</div>
+              <button onClick={() => handleCreateConnection(i)} className="p-2 bg-green-400 rounded-xl">
+                Add
+              </button>
+            </div>
+          ))
+        )}
+        <DialogFooter>{/* <Button type="submit">Save changes</Button> */}</DialogFooter>
       </DialogContent>
     </Dialog>
   );

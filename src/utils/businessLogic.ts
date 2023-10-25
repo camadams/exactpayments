@@ -168,12 +168,8 @@ export function getDatesBetween(startDate: Date, stopDate: Date): Date[] {
 export function getCustomerAndProductFromIndex(index: number) {
     const productId = index % products.length + 1;
     const customerId = Math.floor(index / products.length) + 1;
-    return [customerId, productId];
+    return { customerId, productId };
 }
 
-export function getMyDate(datedate: number) {
-    const now = new Date();
-    return new Date(now.getFullYear(), now.getMonth(), now.getDate())
-}
 
 // consolew.log(getDates(new Date(2023, 8, 1), new Date(2023, 8, 30)))
