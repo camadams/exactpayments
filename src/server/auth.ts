@@ -97,7 +97,7 @@ export const authOptions: NextAuthOptions = {
 
         const user = await prisma.user.findUnique({
           where: {
-            id: 4,
+            id: 3,
           },
         });
 

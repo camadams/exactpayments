@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import React, { useEffect, useState } from "react";
 import SpreadSheetComponent from "~/components/spreadsheet2";
-import { sendEmail } from "~/utils/businessLogic";
+import { sendEmail, sendWhatsapp } from "~/utils/businessLogic";
 import generatePDF from "~/utils/generatePDF";
 import { InvoicesPreview } from "~/components/InvoicesPreview";
 
@@ -100,20 +100,20 @@ function Home() {
 
   const { data: freshBillResult, mutate: doBillMutation } = api.sale.bill2.useMutation();
 
-  const handleBillClicked = async () => {
-    if (from && to) {
-      await router.push({
-        pathname: "/bill",
-        query: {
-          from: format(from, "ddMMyy"),
-          to: format(to, "ddMMyy"),
-        },
-      });
-    }
-    // if (spreadSheet) {
-    //   doBillMutation({ ...spreadSheet });
-    //   setHasBilled(false);
+  const handleBillClicked = () => {
+    // if (from && to) {
+    //   await router.push({
+    //     pathname: "/bill",
+    //     query: {
+    //       from: format(from, "ddMMyy"),
+    //       to: format(to, "ddMMyy"),
+    //     },
+    //   });
     // }
+    if (spreadSheet) {
+      doBillMutation({ ...spreadSheet });
+      setHasBilled(false);
+    }
   };
 
   if (freshBillResult && !hasBilled) {
@@ -163,6 +163,7 @@ function Home() {
               <button className="px-6 py-2 bg-green-400 rounded-lg" onClick={() => alert("need to implement")}>
                 Save Bill
               </button>
+              <button onClick={async () => await sendWhatsapp(billResult)}>+</button>
             </>
           ) : (
             <>

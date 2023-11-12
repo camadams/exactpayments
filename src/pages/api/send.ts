@@ -22,7 +22,12 @@ const a = async (req: NextApiRequest, res: NextApiResponse) => {
         // });
 
         const billResultArr = req.body as BillCustomerResult[];
-        console.log(billResultArr);
+        if (!billResultArr) {
+            res.status(400).json({ msg: "no body" });
+            return;
+        }
+
+        console.log("***", billResultArr);
         const billResult = billResultArr[0];
 
         const createEmailOptions: CreateEmailOptions[] = billResultArr.map((billResult) => {

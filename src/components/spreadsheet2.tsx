@@ -5,6 +5,7 @@ import React, { useState, useEffect, type ChangeEvent } from "react";
 import { type DateRange } from "react-day-picker";
 import { addTimezoneOffset } from "~/lib/utils";
 import { type CellType, Sale, type SheetRow, type SpreadSheet } from "~/server/api/routers/sale";
+import { type RouterInputs } from "~/utils/api";
 import { getCustomerAndProductFromIndex } from "~/utils/businessLogic";
 
 interface Cell {
@@ -21,23 +22,22 @@ interface SpreadSheetProps {
   isSelling: boolean;
 }
 
-interface SaleToAdd {
-  saleDate: Date;
-  quantity: number;
-  productId: number;
-  customerId: number;
-  rowIndex: number;
-  colIndex: number;
-}
+type SaleToAdd = RouterInputs["sale"]["createOrUpdate"];
+// interface SaleToAdd {
+//   saleDate: Date;
+//   quantity: number;
+//   productId: number;
+//   userId: number;
+//   rowIndex: number;
+//   colIndex: number;
+// }
 
 export default function SpreadSheet({ spreadSheet, setSpreadSheet, from, to, salesMutation, isSelling }: SpreadSheetProps) {
   const [activeCell, setActiveCell] = useState<Cell>({ row: -1, col: -1 });
   const [salesToAddOrUpdateOnDb, setSalesToAddOrUpdateOnDb] = useState<SaleToAdd[]>();
-
   useEffect(() => {
     const intervalId = setTimeout(() => {
       if (salesToAddOrUpdateOnDb && salesToAddOrUpdateOnDb.length > 0) {
-        console.log("in if statement");
         for (const newSale of salesToAddOrUpdateOnDb) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
           salesMutation.mutate(newSale);
@@ -115,20 +115,19 @@ export default function SpreadSheet({ spreadSheet, setSpreadSheet, from, to, sal
     setSpreadSheet(updatedSpreadSheet);
 
     const saleDate = spreadSheet?.rows[activeCell.row]!.date;
-    const { customerId, productId } = getCustomerAndProductFromIndex(activeCell.col);
-    const newSale: SaleToAdd = {
-      saleDate,
-      quantity,
-      productId,
-      customerId,
-      rowIndex,
-      colIndex,
-    };
+    spreadSheet.header[activeCell.col]?.user.id;
+    const productId = (activeCell.col % 3) + 1;
+    const buyingUserId = spreadSheet.header[Math.floor(activeCell.col / 3)]?.user.id!;
+
+    // const { buyingUserId, productId } = getCustomerAndProductFromIndex(activeCell.col);
+    // console.log(spreadSheet.header[buyingUserIddd]?.user);
+    // console.log(Z);
+    const newSale: SaleToAdd = { saleDate, quantity, productId, buyingUserId, rowIndex, colIndex };
     setSalesToAddOrUpdateOnDb((prevSales) => {
       if (!prevSales) return [newSale];
 
       const index = prevSales.findIndex(
-        (sale) => sale.productId === newSale.productId && sale.customerId === newSale.customerId && isSameDay(sale.saleDate, newSale.saleDate),
+        (sale) => sale.productId === newSale.productId && sale.buyingUserId === newSale.buyingUserId && isSameDay(sale.saleDate, newSale.saleDate),
       );
 
       if (index !== -1) {
@@ -195,12 +194,12 @@ export default function SpreadSheet({ spreadSheet, setSpreadSheet, from, to, sal
   }
 
   // const x = [0, 0, 0, 0];
-  const customersLen = spreadSheet.header.length;
+  const usersLen = spreadSheet.header.length;
   // const numProducts = spreadSheet.header[0].products.length;
   const productsLen = spreadSheet.header[0] ? spreadSheet.header[0].products.length : 0;
-  const temp = new Array<number>(customersLen);
-  const sheetWidth = (productsLen * customersLen + 1) * 63;
-  const customers = spreadSheet.header.map((h) => h.customer);
+  const temp = new Array<number>(usersLen);
+  const sheetWidth = (productsLen * usersLen + 1) * 63;
+  const users = spreadSheet.header.map((h) => h.user);
   const products = spreadSheet.header[0]?.products;
   const filteredRows = spreadSheet.rows.filter((row) => compareAsc(row.date, from) >= 0 && compareAsc(to, row.date) >= 0);
 
@@ -210,9 +209,10 @@ export default function SpreadSheet({ spreadSheet, setSpreadSheet, from, to, sal
   const sumQuantity = sumItUp(spreadSheet);
 
   const sumQuantityTimesPrice = sumQuantity.map((q, i) => q * products[i % productsLen]?.unitPrice!);
-  const totalPerCustomer = sumNConsecutiveNumbers(sumQuantityTimesPrice, productsLen);
+  const totalPerUser = sumNConsecutiveNumbers(sumQuantityTimesPrice, productsLen);
   return (
     <>
+      <div>{JSON.stringify(spreadSheet.header, null, "\t")}</div>
       {spreadSheet && products && products.length > 0 ? (
         <div className="max-w-full overflow-x-auto">
           {/* <button onClick={handleAddSale}>Add dummy Sales</button>
@@ -282,15 +282,15 @@ export default function SpreadSheet({ spreadSheet, setSpreadSheet, from, to, sal
         <div className="min-w-[80px]"></div> {/*filler */}
         <div className="w-full pr-4">
           <div className="flex ">
-            {customers.map((customer, i) => (
+            {users.map((user, i) => (
               <div key={i} className="w-full p-1 border">
-                {customer.name}
+                {user.name}
               </div>
             ))}
           </div>
           <div className="flex">
             {[...temp].map((_, j) => (
-              <div key={j} className={`flex w-[${100 / customers.length}%]`}>
+              <div key={j} className={`flex w-[${100 / users.length}%]`}>
                 {products?.map((product, i) => (
                   <div key={i} className={`text-xs border w-[${100 / products.length}%]`}>
                     {product.name}
@@ -311,7 +311,7 @@ export default function SpreadSheet({ spreadSheet, setSpreadSheet, from, to, sal
           <div className="w-full border ">Quantity</div>
           <div className="w-full border ">Total</div>
           <div className="w-full border ">Grand Total</div>
-        </div>{" "}
+        </div>
         {/*filler */}
         <div className="w-full pr-4">
           <div className="flex">
@@ -332,7 +332,7 @@ export default function SpreadSheet({ spreadSheet, setSpreadSheet, from, to, sal
           </div>
 
           <div className="flex ">
-            {totalPerCustomer.map((total, i) => (
+            {totalPerUser.map((total, i) => (
               <div key={i} className="flex justify-center w-full text-sm border">
                 {`R${total}`}
               </div>

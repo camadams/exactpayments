@@ -128,10 +128,12 @@ export default function App() {
                 ))}
               </tbody>
             </table>
-            <DialogDemo />
           </>
         ) : (
-          <h1>No one</h1>
+          <>
+            <h1>No one</h1>
+            <DialogDemo />
+          </>
         )}
       </div>
     </div>

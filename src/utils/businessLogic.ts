@@ -4,6 +4,7 @@ import { api, type RouterOutputs } from './api';
 /* eslint-disable @typescript-eslint/prefer-for-of */
 import generatePDF from './generatePDF';
 import { type BillCustomerResult } from '~/server/api/routers/sale';
+import axios from 'axios';
 
 export const customers = [
     { name: "Customer 1", emailAddress: "customer1@gmail.com" },
@@ -101,6 +102,25 @@ type Product = {
 
 
 
+// export async function sendEmail(billResult: BillCustomerResult[]): Promise<void> {
+//     const apiUrl =
+//         process.env.NODE_ENV === 'development'
+//             ? 'http://localhost:3000'
+//             : 'https://sheetspro.vercel.app';
+
+//     try {
+//         const response = await axios.post(`${apiUrl}/api/send`, billResult, {
+//             headers: {
+//                 'Content-Type': 'application/json',
+//             },
+//         });
+
+//         alert(`Email sent! Result: ${response.status} ${response.statusText}`);
+//     } catch (error) {
+//         console.log(error);
+//     }
+// }
+
 export async function sendEmail(billResult: BillCustomerResult[]): Promise<void> {
     await fetch(`${process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://sheetspro.vercel.app"}/api/send`, {
         method: "POST",
@@ -113,24 +133,31 @@ export async function sendEmail(billResult: BillCustomerResult[]): Promise<void>
         .catch((err) => console.log(err));
 }
 
+export async function sendWhatsapp(billResult: BillCustomerResult[]): Promise<void> {
+    const apiUrl =
+        process.env.NODE_ENV === 'development'
+            ? 'http://localhost:3000'
+            : 'https://sheetspro.vercel.app';
+
+    const message = "hi there"
+    try {
+        const response = await axios.post(`${apiUrl}/api/whats`, billResult, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        alert(`Email sent! Result: ${response.status} ${response.statusText}`);
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
+
 type Saley = RouterOutputs["sale"]["getAllSalesBetweenFromAndTo"][number];
 
 
-export function convertSalesToSpreadsheet(sales: Saley[], from: Date, to: Date, liveSpreadSheet: SpreadSheet | undefined): SpreadSheet {
-    const returnSpreadSheet = null ?? initBlankSpreadSheet(from, to);
-    for (const row of returnSpreadSheet.rows) {
-        for (const sale of sales) {
-            if (isSameDay(addHours(sale.saleDate, 0), row.date)) {
-                const productId = sale.productId;
-                const customerId = sale.customerId;
-                const index = ((customerId - 1) * products.length) - 1 + productId;
-                row.sales[index]!.quantity = sale.quantity;
-            }
-        }
-    }
-
-    return returnSpreadSheet;
-}
 
 function initBlankSpreadSheet(startDate: Date, stopDate: Date): SpreadSheet {
     const days: Date[] = getDatesBetween(startDate, stopDate);
@@ -167,8 +194,8 @@ export function getDatesBetween(startDate: Date, stopDate: Date): Date[] {
 
 export function getCustomerAndProductFromIndex(index: number) {
     const productId = index % products.length + 1;
-    const customerId = Math.floor(index / products.length) + 1;
-    return { customerId, productId };
+    const buyingUserId = Math.floor(index / products.length) + 1;
+    return { buyingUserId, productId };
 }
 
 
