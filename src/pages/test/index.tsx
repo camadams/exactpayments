@@ -17,6 +17,7 @@ import Link from "next/link";
 import { AuthShowcase } from "~/components/AuthShowcase";
 import { useRouter } from "next/router";
 import { addTimezoneOffset } from "~/lib/utils";
+import { LoadingSpinner } from "~/components/loading";
 
 function Home() {
   type a = RouterOutputs["sale"]["getAllSalesBetweenFromAndTo"];
@@ -128,41 +129,44 @@ function Home() {
     <div className="flex w-full px-2">
       <div className="absolute top-0 bg-green-300 bg-opacity-50 rounded-lg w-15 ">{salesMutation.isLoading ? "Saving..." : "Auto Saved"}</div>
       <div className="flex flex-col items-center w-full">
-        {/* <button onClick={() => setIsSelling((prev) => !prev)} className="w-20 h-10 text-xs bg-green-400 rounded-lg">
-          {isSelling ? "I am selling" : "I am buying"}
-        </button> */}
-
-        <div className="flex">
+        {JSON.stringify(sesh.user, null, 4)}
+        <div className="flex gap-2 mb-2">
           <CalendarDateRangePicker className={""} setDate={setDate} date={date} disabledYes={isLoading} />
-          <Link href="/connections" className="absolute top-0 w-20 h-10 bg-yellow-300 rounded-lg right-20">
+          <Link href="/connections" className="flex items-center justify-center p-2 text-sm text-center bg-green-400 rounded-lg">
             Connections
           </Link>
-          <Link href="/settings" className="absolute top-0 right-0 w-20 h-10 bg-yellow-300 rounded-lg">
+          <Link href="/settings" className="flex items-center justify-center p-2 text-sm text-center bg-green-400 rounded-lg">
             Settings
           </Link>
+          <button onClick={() => setIsSelling((prev) => !prev)} className="p-2 text-sm bg-green-400 rounded-lg">
+            {isSelling ? "I am selling" : "I am buying"}
+          </button>
         </div>
 
-        {!isLoading && spreadSheet && from && to && spreadSheet.header[0] !== undefined ? (
+        {!isLoading && spreadSheet && from && to ? (
           <SpreadSheetComponent {...{ spreadSheet, setSpreadSheet, from, to, salesMutation, isSelling }} />
         ) : (
-          <div className="w-4/5 bg-blue-200/20 h-72">Loading spreadsheet</div>
+          <div className="w-4/5 bg-blue-200/20 h-72">
+            <span>Loading SpreadSheet</span>
+            <LoadingSpinner />
+          </div>
         )}
         <div className="flex gap-4 my-4">
           {billResult ? (
             <>
-              <button className="w-20 h-10 text-sm bg-green-400 rounded-lg" onClick={() => generatePDF(document, "sample.pdf")}>
+              <button className="px-6 py-2 text-sm bg-green-400 rounded-lg" onClick={() => generatePDF(document, "sample.pdf")}>
                 Download
               </button>
-              <button className="w-20 h-10 bg-green-400 rounded-lg" onClick={async () => await sendEmail(billResult)}>
+              <button className="px-6 py-2 bg-green-400 rounded-lg" onClick={async () => await sendEmail(billResult)}>
                 Send
               </button>
-              <button className="w-20 h-10 bg-green-400 rounded-lg" onClick={() => alert("need to implement")}>
+              <button className="px-6 py-2 bg-green-400 rounded-lg" onClick={() => alert("need to implement")}>
                 Save Bill
               </button>
             </>
           ) : (
             <>
-              <button className="w-20 h-10 bg-green-400 rounded-lg" onClick={() => handleBillClicked()}>
+              <button className="px-6 py-2 bg-green-400 rounded-lg" onClick={() => handleBillClicked()}>
                 Bill
               </button>
             </>

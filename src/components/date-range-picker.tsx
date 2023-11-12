@@ -2,11 +2,10 @@
 
 import * as React from "react";
 import { CalendarIcon } from "@radix-ui/react-icons";
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
 import { type DateRange } from "react-day-picker";
 
 import { cn } from "~/utils/utils";
-import { addTimezoneOffset } from "~/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Button } from "./ui/button";
 import { Calendar } from "./calendar";

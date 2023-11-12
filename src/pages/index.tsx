@@ -29,6 +29,8 @@ import { Dialog } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import Image from "next/image";
+import { LoadingSpinner } from "~/components/loading";
+import { AuthShowcase } from "~/components/AuthShowcase";
 
 const navigation = [
   { name: "Features", href: "#" },
@@ -36,7 +38,7 @@ const navigation = [
 ];
 
 export default function Example() {
-  const { data: sessionData } = useSession();
+  const { data: sessionData, status } = useSession();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -48,7 +50,7 @@ export default function Example() {
             {/* <a href="#" className="-m-1.5 p-1.5"> */}
             {/* <img className="w-auto h-8" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="" /> */}
             {/* <h1>Logo</h1> */}
-            <Image src="/public/logo.png" alt="Hi" width={32} height={32} />
+            <Image src="/public/a.png" alt="Hfdfi" width={32} height={32} />
             {/* </a> */}
           </div>
           <div className="flex lg:hidden">
@@ -72,7 +74,9 @@ export default function Example() {
               Log in <span aria-hidden="true">&rarr;</span>
             </a> */}
             {/* {sessionData ? <Link href="/test" > Dashboard <Link/> : <div>"Sign in"</div> } */}
-            {sessionData ? (
+            {status === "loading" ? (
+              <LoadingSpinner />
+            ) : sessionData ? (
               <Link
                 href="/test"
                 className="px-2 py-1 text-sm text-white bg-blue-600 rounded-md shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
@@ -80,7 +84,7 @@ export default function Example() {
                 Dashboard
               </Link>
             ) : (
-              <div>Sign Up</div>
+              <AuthShowcase />
             )}
           </div>
         </nav>
@@ -168,7 +172,7 @@ export default function Example() {
           />
         </div> */}
       </div>
-      <footer className="bottom-0 w-full bg-gray-900" aria-labelledby="footer-heading">
+      {/* <footer className="bottom-0 w-full bg-gray-900" aria-labelledby="footer-heading">
         <h2 id="footer-heading" className="sr-only">
           Footer
         </h2>
@@ -213,7 +217,7 @@ export default function Example() {
             <p className="mt-8 text-xs leading-5 text-gray-400 md:order-1 md:mt-0">© 2023 Ping Labs. All rights reserved.</p>
           </div>
         </div>
-      </footer>
+      </footer> */}
     </div>
   );
 }

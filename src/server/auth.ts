@@ -12,6 +12,7 @@ import Credentials from "next-auth/providers/credentials";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
 import { Account } from "@prisma/client";
+import { encode, decode } from 'next-auth/jwt';
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -28,6 +29,8 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: DefaultSession["user"] & {
       id: number;
+      password: string;
+      invoicePrefix: string;
       // invoicePrefix: string;
       // ...other properties
       // role: UserRole;
@@ -47,15 +50,32 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    session({ session, token, user }) {
+      // Send properties to the client, like an access_token and user id from a provider.
+      // if (token) {
+      //   session.id = token.id
+      // }
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.id,
+        },
+      }
+    },
   },
   adapter: PrismaAdapter(prisma),
+  session: {
+    strategy: 'jwt',
+  },
+  jwt: { encode, decode, secret: "test" },
+  secret: "test",
   providers: [
     // DiscordProvider({
     //   clientId: env.DISCORD_CLIENT_ID,
@@ -65,39 +85,57 @@ export const authOptions: NextAuthOptions = {
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
     }),
-    // Credentials({
-    //   id: "intranet-credentials",
-    //   credentials: {
-    //     username: { label: "Username", type: "text" },
-    //     password: { label: "Password", type: "password" },
-    //   },
-    //   async authorize(credentials, req) {
-    //     // try {
-    //     //   // Find a user by the provided username
+    Credentials({
+      id: "intranet-credentials",
+      credentials: {
+        username: { label: "Username", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials, req) {
+        // try {
+        //   // Find a user by the provided username
 
-    //     // console.log({ credentials })
-    //     console.log("*****************************************")
-    //     const user = await prisma.user.findUnique({
-    //       where: {
-    //         id: 1,
-    //       },
-    //     });
+        const user = await prisma.user.findUnique({
+          where: {
+            id: 4,
+          },
+        });
 
-    //     // // If the user is not found  or the password is incorrect, return null
-    //     // if (!user || user.password !== credentials.password) {
-    //     //   return null;
-    //     // }
+        // // If the user is not found  or the password is incorrect, return null
+        // if (!user || user.password !== credentials.password) {
+        //   return null;
+        // }
 
-    //     // If the username and password are correct, return the user object
-    //     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return
-    //     return null as any;
-    //     // } catch (error) {
-    //     //   // Handle errors (e.g., database errors)
-    //     //   console.error("Error in authorize:", error);
-    //     //   return null; // Return null to indicate authentication failure
-    //     // }
-    //   }
-    // }),
+        // If the username and password are correct, return the user object
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return
+        // return null as any;
+        // } catch (error) {
+        //   // Handle errors (e.g., database errors)
+        //   console.error("Error in authorize:", error);
+        //   return null; // Return null to indicate authentication failure
+        // }
+
+        // const user = { id: "1", name: "J Smith", email: "jsmith@example.com", age: 22 }
+
+
+
+        if (user) {
+          // Any object returned will be saved in `user` property of the JWT
+          console.log({ user, inuser: "inuser" })
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return
+          return user as any
+        } else {
+          console.log("not in user")
+
+          // If you return null then an error will be displayed advising the user to check their details.
+          return null
+
+          // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
+        }
+      },
+      // name: "hi"
+    }),
     /**
      * ...add more providers here.
      *
