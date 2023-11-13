@@ -34,7 +34,7 @@ export default function BillPage() {
 
   if (freshBillResult && !hasBilled) {
     setHasBilled(true);
-    setBillResultt(freshBillResult);
+    // setBillResultt(freshBillResult);
   }
 
   return (

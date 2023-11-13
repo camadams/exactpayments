@@ -1,11 +1,8 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { type NextApiRequest, type NextApiResponse } from 'next';
 import axios from 'axios';
 import { type BillCustomerResult } from '~/server/api/routers/sale';
 
-export default async function handler(
-    req: NextApiRequest,
-    res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const test = true;
     try {
         const billResultArr = req.body as BillCustomerResult[];
