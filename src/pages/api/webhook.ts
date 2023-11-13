@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/dot-notation */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { type NextApiRequest, type NextApiResponse } from 'next';
@@ -45,7 +44,7 @@ export default async function handler(
             res.status(404).end();
         }
     } else if (req.method === 'GET') {
-        let mode = req.query['hub_mode'];
+        let mode = req.query['hub.mode'];
         let token = req.query['hub.verify_token'];
         let challenge = req.query['hub.challenge'];
 
