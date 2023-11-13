@@ -47,7 +47,7 @@ export default async function handler(
         let mode = req.query['hub.mode'];
         let token = req.query['hub.verify_token'];
         let challenge = req.query['hub.challenge'];
-
+        console.log({ mode, token })
         if (mode && token) {
             if (mode === 'subscribe' && token === verifyToken) {
                 console.log('WEBHOOK_VERIFIED');
