@@ -3,7 +3,7 @@ import { addDays } from 'date-fns';
 import { api, type RouterOutputs } from './api';
 /* eslint-disable @typescript-eslint/prefer-for-of */
 import generatePDF from './generatePDF';
-import { type BillCustomerResult } from '~/server/api/routers/sale';
+import { type BillCustomerResult } from "~/com/sheetspro/BillCustomerResult";
 import axios from 'axios';
 
 export const customers = [
@@ -26,12 +26,6 @@ export const products = [
 ];
 
 
-export interface InvoiceLine {
-    description: string;
-    quantity: number;
-    unitPrice: number;
-    total: number;
-}
 
 // export interface BillCustomerResult {
 //     firstName: string;
@@ -130,6 +124,7 @@ export async function sendEmail(billResult: BillCustomerResult[]): Promise<void>
         body: JSON.stringify(billResult),
     })
         .then((x) => alert("Email sent! Result: " + x.status + " " + x.statusText))
+        // .then((x) => console.log(x))
         .catch((err) => console.log(err));
 }
 

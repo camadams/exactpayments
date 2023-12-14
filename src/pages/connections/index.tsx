@@ -132,9 +132,9 @@ export default function App() {
         ) : (
           <>
             <h1>No one</h1>
-            <DialogDemo />
           </>
         )}
+        <DialogDemo />
       </div>
     </div>
   );

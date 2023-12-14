@@ -1,12 +1,12 @@
 import { type NextApiRequest, type NextApiResponse } from 'next';
 import axios from 'axios';
-import { type BillCustomerResult } from '~/server/api/routers/sale';
+import { type BillCustomerResult } from "~/com/sheetspro/BillCustomerResult";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const test = true;
     try {
         const billResultArr = req.body as BillCustomerResult[];
-
+        console.log(billResultArr)
         const whatsappsToSend = billResultArr.map((billResult) => {
             return {
                 to: test ? '27835542241' : billResult.customerEmail,
@@ -31,13 +31,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 },
                 {
                     headers: {
-                        Authorization: 'Bearer EAAPWZBZAzQ48ABO1O4LN5OcZB5Ri7Q87H2NCOvQh55E0KjMj6lvAWsYr14S5nYcJfWsZBz89cZBZBu6iUfGR0rFj560L0QVASgtqwWcoQxrSdZBikwaALA2f58i98T0saUnZBaryiPOvzHB0njaewLi0Ws46RSdDSk7sH7hLZBPessswb5Y19mErRnKxdnSkJVRWQ6M9z5OhGZCrQgYZC17',
+                        Authorization: 'Bearer EAAPWZBZAzQ48ABOwviUK0dcKZBZBcfbn7ZALPBo8O4i6gHA33ZA3XjqClDAguxtn4ASSvfLESF13cXZB6ZAhjqh12hIZCxQcnxePjwrBwJjwuLJZA9sTdX4Svvqll6ZAvm9sKH5uZAAUJDZCmEe3yJFYueEWHzBUc53ZBhWdr6Ktih7sleAuu5neCk7RIjpHstPAVZA5GcJHXDO0Sjv6CeqKPHL',
                         'Content-Type': 'application/json',
                     },
                 }
             );
             respMsg += response.data + '\n';
-            console.log(response.data);
+            console.log(respMsg);
+            break;
         }
 
 

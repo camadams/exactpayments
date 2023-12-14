@@ -1,2 +1,0 @@
-left off getting server error when switching to 'I am buying' 
-could be line 355 in sales.ts

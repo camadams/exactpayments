@@ -1,60 +1,91 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Resend } from 'resend';
 import type { CreateEmailOptions } from 'resend/build/src/emails/interfaces';
-import { type BillCustomerResult } from '~/server/api/routers/sale';
+import { type BillCustomerResult, type xBillCustomerResult } from '~/com/sheetspro/BillCustomerResult';
+import { prisma } from '~/server/db';
+import { api } from '~/utils/api';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const a = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const test = true;
-    try {
-        // let x: Buffer = Buffer.alloc(0);
-        // fs.readFile("C:/tosend.pdf", (err, data) => {
-        //     if (err) {
-        //         console.error('Error reading file:', err);
-        //         return;
-        //     }
-        //     x = data;
 
-        //     // 'data' now contains the contents of the file as a Buffer
-        //     console.log('File contents as Buffer:', data);
-        // });
+    // let x: Buffer = Buffer.alloc(0);
+    // fs.readFile("C:/tosend.pdf", (err, data) => {
+    //     if (err) {
+    //         console.error('Error reading file:', err);
+    //         return;
+    //     }
+    //     x = data;
 
-        const billResultArr = req.body as BillCustomerResult[];
-        if (!billResultArr) {
-            res.status(400).json({ msg: "no body" });
-            return;
-        }
+    //     // 'data' now contains the contents of the file as a Buffer
+    //     console.log('File contents as Buffer:', data);
+    // });
 
-        console.log("***", billResultArr);
-        const billResult = billResultArr[0];
+    const xbillResults = req.body as xBillCustomerResult[];
+    const billResults = req.body as BillCustomerResult[];
 
-        const createEmailOptions: CreateEmailOptions[] = billResultArr.map((billResult) => {
-            return {
-                from: test ? 'Acme <onboarding@resend.dev>' : 'Emz <billing@mail.emzbakery.com>',
-                to: [test ? 'camgadams@gmail.com' : billResult.customerEmail],
-                subject: `Emz Bakery Invoice ${billResult.invoiceNumber} `,
-                text: billResult.textSummary,
-            } as CreateEmailOptions
-        }
-        );
-
-        for (const createEmailOption of createEmailOptions) {
-            const data = await resend.emails.send(createEmailOption);
-            console.log(data.id)
-        }
-        // const data = await resend.emails.send();
-        // console.log(data.id)
-        // res.status(200).send(data.id);
-    } catch (error) {
-        res.status(400).json(error);
+    if (!billResults) {
+        res.status(400).json({ msg: "no body" });
+        return;
     }
+    for (const billResult of billResults) {
+        if (billResult.grandTotal == 0) continue;
+        const email: CreateEmailOptions = {
+            from: test ? 'Acme <onboarding@resend.dev>' : 'Emz <billing@mail.emzbakery.com>',
+            to: test ? 'camgadams@gmail.com' : billResult.customerEmail,
+            subject: `Emz Bakery Invoice ${billResult.invoiceNumber}`,
+            text: billResult.textSummary,
+        }
+        const data = await resend.emails.send(email);
+        // console.log({ data })
+        // console.log({ billResult })
+
+        const bb = await prisma.billCustomerResult.create({
+            data: {
+                ...billResult,
+                invoiceLines: {
+                    create: billResult.invoiceLines
+                        .filter((line) => line.quantity > 0)
+                        .map((line) => ({
+                            description: line.description,
+                            quantity: line.quantity,
+                            unitPrice: line.unitPrice,
+                            total: line.total,
+                        })),
+                },
+            }
+        })
+        console.log({ bb })
+        // const y = await prisma.billCustomerResult.create({ data: {} })
+        // const { data: x, mutate: createBillCustomerResult } = api.billCustomerResult.create.useMutation();
+        // createBillCustomerResult(billResult);
+        // console.log({ x })
+        // const { mutate: create } = api.example.create.useMutation();
+        // create();
+        // break;
+    }
+
+
+    // const data = await resend.emails.send();
+    // console.log(data.id)
+    res.status(200).json({ message: 'no error.' });
+
 
 
 };
 
 export default a;
+
+function parseDateFromString(dateString: string): Date {
+    const year = parseInt((dateString || "").slice(4, 6), 10) + 2000; // Add 2000 to get the full year
+    const month = parseInt((dateString || "").slice(2, 4), 10) - 1; // Month is zero-based
+    const day = parseInt((dateString || "").slice(0, 2), 10);
+
+    return new Date(year, month, day);
+}
+
 
 
 /*

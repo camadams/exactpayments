@@ -212,12 +212,14 @@ export default function SpreadSheet({ spreadSheet, setSpreadSheet, from, to, sal
   const totalPerUser = sumNConsecutiveNumbers(sumQuantityTimesPrice, productsLen);
   return (
     <>
-      <div>{JSON.stringify(spreadSheet.header, null, "\t")}</div>
+      {/* <div>{JSON.stringify(spreadSheet.header, null, "\t")}</div> */}
       {spreadSheet && products && products.length > 0 ? (
         <div className="max-w-full overflow-x-auto">
           {/* <button onClick={handleAddSale}>Add dummy Sales</button>
           <pre>{JSON.stringify(salesToAddOrUpdateOnDb, null, 4)}</pre> */}
-          <div className="w-full bg-cyan-400" style={{ width: `${sheetWidth}px` }}>
+          <div className="bg-cyan-400" style={{ width: `${sheetWidth}px` }}>
+            {/* <div className={`bg-cyan-400 w-[${sheetWidth}px]`}> */}
+
             {/* <div className={`bg-cyan-400 w-[${Math.round(sheetWidth)}px]`}> */}
             <TopHeader />
             <div className="table-container overflow-y-auto max-h-[550px]" style={{ scrollbarGutter: "stable" }}>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api, type RouterOutputs } from "~/utils/api";
 
 type Example = RouterOutputs["example"]["getAll"];
+type qwer = RouterOutputs["billCustomerResult"]["getAll"][number];
 
 interface Resp {
   respp: string; // Adjust the type to match your JSON structure

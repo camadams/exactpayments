@@ -1,0 +1,1 @@
+src/pages/bill/index.tsx line 56 work out how the onclick property not have () =>

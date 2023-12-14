@@ -2,7 +2,7 @@ import { Img } from "@react-email/img";
 import { Tailwind } from "@react-email/tailwind";
 import { addDays, format } from "date-fns";
 import * as React from "react";
-import { type BillCustomerResult } from "~/server/api/routers/sale";
+import { type BillCustomerResult } from "~/com/sheetspro/BillCustomerResult";
 
 // export const EmailTemplate: React.FC<EmailTemplateProps> = (props) => (
 //   <div className="flex flex-col items-center justify-center">
@@ -13,7 +13,7 @@ import { type BillCustomerResult } from "~/server/api/routers/sale";
 export const EmailTemplate = (billResult: BillCustomerResult) => {
   return (
     <Tailwind>
-      <div className="bg-gray-100 p-4 h-[1410px] ">
+      <div className="bg-gray-100 p-4 h-[1410px] w-[1000px] ">
         {/* Logo in the top right-hand corner */}
         {/* <div style={{ position: "absolute", top: "2.5rem", right: "2.5rem" }}> */}
         {/* <div>
@@ -65,7 +65,8 @@ export const EmailTemplate = (billResult: BillCustomerResult) => {
                     <span className="mr-3 text-gray-600">Due Date: </span> {format(addDays(billResult.billDate, 7), "dd MMM yyyy")}
                   </p>
                   <p className="flex mb-1">
-                    <span className="mr-3 text-gray-600">Billing Period: </span> {format(billResult.billFromDate, "dd MMM yyyy")} - {format(billResult.billToDate, "dd MMM yyyy")}
+                    <span className="mr-3 text-gray-600">Billing Period: </span> {format(billResult.billFromDate, "dd MMM yyyy")} -{" "}
+                    {format(billResult.billToDate, "dd MMM yyyy")}
                   </p>
                 </div>
               </div>

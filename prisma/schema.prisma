@@ -133,6 +133,7 @@ model BillCustomerResult {
     billFromDate  DateTime
     billToDate    DateTime
     billDate      DateTime
+    textSummary   String
 }
 
 model InvoiceLine {

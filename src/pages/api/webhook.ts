@@ -6,22 +6,18 @@ import axios from 'axios';
 const token = process.env.WHATSAPP_TOKEN;
 const verifyToken = process.env.VERIFY_TOKEN;
 
-export default async function handler(
-    req: NextApiRequest,
-    res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method === 'POST') {
         let body = req.body;
 
         console.log(JSON.stringify(body, null, 2));
 
         if (body.object) {
-            if (
-                body.entry?.[0].changes?.[0]?.value.messages?.[0]
-            ) {
-                let phone_number_id = body.entry[0].changes[0].value.metadata.phone_number_id as string;
-                let from = body.entry[0].changes[0].value.messages[0].from as string;
-                let msg_body = body.entry[0].changes[0].value.messages[0].text.body as string;
+            if (body.entry?.[0].changes?.[0]?.value.messages?.[0]) {
+                let value = body.entry[0].changes[0].value;
+                let phone_number_id = value.metadata.phone_number_id as string;
+                let from = value.messages[0].from as string;
+                let msg_body = value.messages[0].text.body as string;
 
                 try {
                     await axios.post(

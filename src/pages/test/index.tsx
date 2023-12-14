@@ -12,7 +12,9 @@ import { CalendarDateRangePicker } from "~/components/date-range-picker";
 import { api, type RouterOutputs } from "~/utils/api";
 import { useSession } from "next-auth/react";
 
-import { type SpreadSheet, type BillCustomerResult } from "~/server/api/routers/sale";
+import { type BillCustomerResult } from "~/com/sheetspro/BillCustomerResult";
+
+import { type SpreadSheet } from "~/server/api/routers/sale";
 import Link from "next/link";
 import { AuthShowcase } from "~/components/AuthShowcase";
 import { useRouter } from "next/router";
@@ -27,8 +29,8 @@ function Home() {
   const [isSelling, setIsSelling] = useState(true);
   const router = useRouter();
   const [date, setDate] = useState<DateRange | undefined>({
-    from: addTimezoneOffset(addDays(startOfWeek(new Date()), 1)),
-    to: addTimezoneOffset(addDays(startOfWeek(new Date()), 7)),
+    from: addTimezoneOffset(startOfWeek(new Date(), { weekStartsOn: 1 })),
+    to: addTimezoneOffset(addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), 6)),
   });
 
   const from = addTimezoneOffset(date?.from);
@@ -100,20 +102,22 @@ function Home() {
 
   const { data: freshBillResult, mutate: doBillMutation } = api.sale.bill2.useMutation();
 
-  const handleBillClicked = () => {
-    // if (from && to) {
-    //   await router.push({
-    //     pathname: "/bill",
-    //     query: {
-    //       from: format(from, "ddMMyy"),
-    //       to: format(to, "ddMMyy"),
-    //     },
-    //   });
-    // }
-    if (spreadSheet) {
-      doBillMutation({ ...spreadSheet });
-      setHasBilled(false);
+  const handleBillClicked = async () => {
+    if (from && to) {
+      await router.push({
+        pathname: "/bill",
+        query: {
+          from: format(from, "ddMMyy"),
+          to: format(to, "ddMMyy"),
+        },
+      });
+    } else {
+      alert("an error occured, no from and to date");
     }
+    // if (spreadSheet) {
+    //   doBillMutation({ ...spreadSheet });
+    //   setHasBilled(false);
+    // }
   };
 
   if (freshBillResult && !hasBilled) {
@@ -129,7 +133,7 @@ function Home() {
     <div className="flex w-full px-2">
       <div className="absolute top-0 bg-green-300 bg-opacity-50 rounded-lg w-15 ">{salesMutation.isLoading ? "Saving..." : "Auto Saved"}</div>
       <div className="flex flex-col items-center w-full">
-        {JSON.stringify(sesh.user, null, 4)}
+        {/* {JSON.stringify(sesh.user, null, 4)} */}
         <div className="flex gap-2 mb-2">
           <CalendarDateRangePicker className={""} setDate={setDate} date={date} disabledYes={isLoading} />
           <Link href="/connections" className="flex items-center justify-center p-2 text-sm text-center bg-green-400 rounded-lg">
@@ -137,6 +141,9 @@ function Home() {
           </Link>
           <Link href="/settings" className="flex items-center justify-center p-2 text-sm text-center bg-green-400 rounded-lg">
             Settings
+          </Link>
+          <Link href="/invoices" className="btn">
+            Invoices
           </Link>
           <button onClick={() => setIsSelling((prev) => !prev)} className="p-2 text-sm bg-green-400 rounded-lg">
             {isSelling ? "I am selling" : "I am buying"}
@@ -173,7 +180,7 @@ function Home() {
             </>
           )}
         </div>
-        <div className="w-[1000px]">
+        <div className="">
           {billResult && (
             <>
               <InvoicesPreview billResults={billResult} />
