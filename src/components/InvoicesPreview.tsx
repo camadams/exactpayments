@@ -2,9 +2,9 @@ import { type BillCustomerResult } from "~/com/sheetspro/BillCustomerResult";
 import { EmailTemplate } from "./email-template";
 import { useState } from "react";
 
-export const InvoicesPreview = ({ billResults }: { billResults: BillCustomerResult[] }) => {
+export const InvoicesPreview = ({ billResults, showEmailTemplatee }: { billResults: BillCustomerResult[]; showEmailTemplatee?: boolean }) => {
   const [index, setIndex] = useState<number>(0);
-  const [showEmailTemplate, setShowEmailTemplate] = useState<boolean>(false);
+  const [showEmailTemplate, setShowEmailTemplate] = useState<boolean>(showEmailTemplatee ?? false);
   return (
     <main>
       <div className="flex flex-wrap items-center gap-2 mx-auto mb-2">

@@ -65,9 +65,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                 <TableRow key={row.id} data-state={row.getIsSelected() && "selected"} className="hover:bg-green-300">
                   {row.getVisibleCells().map((cell) => (
                     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                    <TableCell key={cell.id} onClick={() => router.push(`invoices/${data?.length}`)}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
+                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                   ))}
                 </TableRow>
               ))

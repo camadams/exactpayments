@@ -10,7 +10,7 @@ import { type DateRange } from "react-day-picker";
 
 import { CalendarDateRangePicker } from "~/components/date-range-picker";
 import { api, type RouterOutputs } from "~/utils/api";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 import { type BillCustomerResult } from "~/com/sheetspro/BillCustomerResult";
 
@@ -20,9 +20,9 @@ import { AuthShowcase } from "~/components/AuthShowcase";
 import { useRouter } from "next/router";
 import { addTimezoneOffset } from "~/lib/utils";
 import { LoadingSpinner } from "~/components/loading";
+import { DollarSign, Settings } from "lucide-react";
 
 function Home() {
-  type a = RouterOutputs["sale"]["getAllSalesBetweenFromAndTo"];
   const [hasBilled, setHasBilled] = useState(false);
   const [billResult, setBillResultt] = useState<BillCustomerResult[] | undefined>(undefined);
   const [spreadSheet, setSpreadSheet] = useState<SpreadSheet | undefined>(undefined);
@@ -33,8 +33,10 @@ function Home() {
     to: addTimezoneOffset(addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), 6)),
   });
 
-  const from = addTimezoneOffset(date?.from);
-  const to = addTimezoneOffset(date?.to);
+  // const from = addTimezoneOffset(date?.from);
+  // const to = addTimezoneOffset(date?.to);
+  const from = date?.from;
+  const to = date?.to;
   // console.log("Added time zone start of weeeeeeeekekeke ", addTimezoneOffset(addDays(startOfWeek(new Date()), 1)));
   // console.log({ frontEndState: date });
   const { data: sesh } = useSession();
@@ -78,7 +80,7 @@ function Home() {
     onError(err, newPost, ctx) {
       // // If the mutation fails, use the context-value from onMutate
       // utils.sale.getSpreadSheetFromAndToByUserId.setData({ isSelling: true, from: new Date(), to: new Date(), userId: 1 }, ctx?.prevData);
-      // alert("An error occuring while creating/updating a sale");
+      alert("An error occuring while creating/updating a sale");
     },
     async onSettled() {
       // // Sync with server once mutation has settled
@@ -130,65 +132,77 @@ function Home() {
   }
 
   return (
-    <div className="flex w-full px-2">
-      <div className="absolute top-0 bg-green-300 bg-opacity-50 rounded-lg w-15 ">{salesMutation.isLoading ? "Saving..." : "Auto Saved"}</div>
-      <div className="flex flex-col items-center w-full">
-        {/* {JSON.stringify(sesh.user, null, 4)} */}
-        <div className="flex gap-2 mb-2">
+    <>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center justify-center space-x-1">
           <CalendarDateRangePicker className={""} setDate={setDate} date={date} disabledYes={isLoading} />
-          <Link href="/connections" className="flex items-center justify-center p-2 text-sm text-center bg-green-400 rounded-lg">
+          {/* <Link href="/connections" className="btn">
             Connections
+          </Link> */}
+          <Link href="/settings" className="flex btn">
+            <Settings />
+            <p>Settings</p>
           </Link>
-          <Link href="/settings" className="flex items-center justify-center p-2 text-sm text-center bg-green-400 rounded-lg">
-            Settings
+          <Link href="/invoices" className="flex btn">
+            <DollarSign size={17} />
+            <p>Invoices</p>
           </Link>
-          <Link href="/invoices" className="btn">
-            Invoices
-          </Link>
-          <button onClick={() => setIsSelling((prev) => !prev)} className="p-2 text-sm bg-green-400 rounded-lg">
+          {/* <button onClick={() => setIsSelling((prev) => !prev)} className="p-2 text-sm bg-green-400 rounded-lg">
             {isSelling ? "I am selling" : "I am buying"}
+          </button> */}
+          <div className="bg-opacity-50 rounded-lg w-15">{salesMutation.isLoading ? "🔁 Saving..." : "✔ ☁"}</div>
+        </div>
+        <div>
+          <button className="btn" onClick={() => void signOut({ callbackUrl: "/" })}>
+            Sign out
           </button>
         </div>
+      </div>
 
-        {!isLoading && spreadSheet && from && to ? (
-          <SpreadSheetComponent {...{ spreadSheet, setSpreadSheet, from, to, salesMutation, isSelling }} />
-        ) : (
-          <div className="w-4/5 bg-blue-200/20 h-72">
-            <span>Loading SpreadSheet</span>
-            <LoadingSpinner />
-          </div>
-        )}
-        <div className="flex gap-4 my-4">
-          {billResult ? (
-            <>
-              <button className="px-6 py-2 text-sm bg-green-400 rounded-lg" onClick={() => generatePDF(document, "sample.pdf")}>
-                Download
-              </button>
-              <button className="px-6 py-2 bg-green-400 rounded-lg" onClick={async () => await sendEmail(billResult)}>
-                Send
-              </button>
-              <button className="px-6 py-2 bg-green-400 rounded-lg" onClick={() => alert("need to implement")}>
-                Save Bill
-              </button>
-              <button onClick={async () => await sendWhatsapp(billResult)}>+</button>
-            </>
+      <div className="flex w-full px-1">
+        <div className="flex flex-col items-center w-full">
+          {/* {JSON.stringify(sesh.user, null, 4)} */}
+
+          {!isLoading && spreadSheet && from && to ? (
+            <SpreadSheetComponent {...{ spreadSheet, setSpreadSheet, from, to, salesMutation, isSelling }} />
           ) : (
-            <>
-              <button className="px-6 py-2 bg-green-400 rounded-lg" onClick={() => handleBillClicked()}>
-                Bill
-              </button>
-            </>
+            <div className="w-4/5 bg-blue-200/20 h-72">
+              <span>Loading SpreadSheet</span>
+              <LoadingSpinner />
+            </div>
           )}
-        </div>
-        <div className="">
-          {billResult && (
-            <>
-              <InvoicesPreview billResults={billResult} />
-            </>
-          )}
+          <div className="flex gap-4 my-4">
+            {billResult ? (
+              <>
+                <button className="px-6 py-2 text-sm bg-green-400 rounded-lg" onClick={() => generatePDF(document, "sample.pdf")}>
+                  Download
+                </button>
+                <button className="px-6 py-2 bg-green-400 rounded-lg" onClick={async () => await sendEmail(billResult)}>
+                  Send
+                </button>
+                <button className="px-6 py-2 bg-green-400 rounded-lg" onClick={() => alert("need to implement")}>
+                  Save Bill
+                </button>
+                <button onClick={async () => await sendWhatsapp(billResult)}>+</button>
+              </>
+            ) : (
+              <>
+                <button className="px-6 py-2 bg-green-400 rounded-lg" onClick={() => handleBillClicked()}>
+                  Bill
+                </button>
+              </>
+            )}
+          </div>
+          <div className="">
+            {billResult && (
+              <>
+                <InvoicesPreview billResults={billResult} />
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -81,10 +81,10 @@ export const authOptions: NextAuthOptions = {
     //   clientId: env.DISCORD_CLIENT_ID,
     //   clientSecret: env.DISCORD_CLIENT_SECRET,
     // }),
-    GoogleProvider({
-      clientId: env.GOOGLE_CLIENT_ID,
-      clientSecret: env.GOOGLE_CLIENT_SECRET,
-    }),
+    // GoogleProvider({
+    //   clientId: env.GOOGLE_CLIENT_ID,
+    //   clientSecret: env.GOOGLE_CLIENT_SECRET,
+    // }),
     Credentials({
       id: "intranet-credentials",
       credentials: {
@@ -95,11 +95,8 @@ export const authOptions: NextAuthOptions = {
         // try {
         //   // Find a user by the provided username
 
-        const user = await prisma.user.findUnique({
-          where: {
-            id: 3,
-          },
-        });
+
+        const user = credentials?.password === "vegan" && credentials?.username === "vegan" ? await prisma.user.findUnique({ where: { id: 1 } }) : null
 
         // // If the user is not found  or the password is incorrect, return null
         // if (!user || user.password !== credentials.password) {
@@ -146,13 +143,13 @@ export const authOptions: NextAuthOptions = {
      * @see https://next-auth.js.org/providers/github
      */
   ],
-  // pages: {
-  //   signIn: '/auth/signin',
-  //   signOut: '/auth/signout',
-  //   error: '/auth/error',
-  //   verifyRequest: '/auth/verify-request',
-  //   newUser: '/auth/new-user',
-  // },
+  pages: {
+    // signIn: '/auth/signin',
+    signOut: '/auth/signout',
+    error: '/auth/error',
+    verifyRequest: '/auth/verify-request',
+    newUser: '/auth/new-user',
+  },
 };
 
 /**

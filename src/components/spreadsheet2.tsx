@@ -2,11 +2,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 import { compareAsc, format, isSameDay, isToday } from "date-fns";
 import React, { useState, useEffect, type ChangeEvent } from "react";
-import { type DateRange } from "react-day-picker";
-import { addTimezoneOffset } from "~/lib/utils";
-import { type CellType, Sale, type SheetRow, type SpreadSheet } from "~/server/api/routers/sale";
+import { type CellType, type SheetRow, type SpreadSheet } from "~/server/api/routers/sale";
 import { type RouterInputs } from "~/utils/api";
-import { getCustomerAndProductFromIndex } from "~/utils/businessLogic";
 
 interface Cell {
   row: number;
@@ -23,26 +20,18 @@ interface SpreadSheetProps {
 }
 
 type SaleToAdd = RouterInputs["sale"]["createOrUpdate"];
-// interface SaleToAdd {
-//   saleDate: Date;
-//   quantity: number;
-//   productId: number;
-//   userId: number;
-//   rowIndex: number;
-//   colIndex: number;
-// }
 
 export default function SpreadSheet({ spreadSheet, setSpreadSheet, from, to, salesMutation, isSelling }: SpreadSheetProps) {
   const [activeCell, setActiveCell] = useState<Cell>({ row: -1, col: -1 });
-  const [salesToAddOrUpdateOnDb, setSalesToAddOrUpdateOnDb] = useState<SaleToAdd[]>();
+  const [salesToBeAddedOrUpdatedOnDb, setSalesToBeAddedOrUpdatedOnDb] = useState<SaleToAdd[]>();
   useEffect(() => {
     const intervalId = setTimeout(() => {
-      if (salesToAddOrUpdateOnDb && salesToAddOrUpdateOnDb.length > 0) {
-        for (const newSale of salesToAddOrUpdateOnDb) {
+      if (salesToBeAddedOrUpdatedOnDb && salesToBeAddedOrUpdatedOnDb.length > 0) {
+        for (const newSale of salesToBeAddedOrUpdatedOnDb) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
           salesMutation.mutate(newSale);
         }
-        setSalesToAddOrUpdateOnDb((prev) => []);
+        setSalesToBeAddedOrUpdatedOnDb((prev) => []);
       }
     }, 3000);
     return () => {
@@ -50,7 +39,7 @@ export default function SpreadSheet({ spreadSheet, setSpreadSheet, from, to, sal
       clearTimeout(intervalId);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [salesToAddOrUpdateOnDb]);
+  }, [salesToBeAddedOrUpdatedOnDb]);
 
   useEffect(() => {
     const handleArrowKeys = (event: KeyboardEvent) => {
@@ -123,7 +112,7 @@ export default function SpreadSheet({ spreadSheet, setSpreadSheet, from, to, sal
     // console.log(spreadSheet.header[buyingUserIddd]?.user);
     // console.log(Z);
     const newSale: SaleToAdd = { saleDate, quantity, productId, buyingUserId, rowIndex, colIndex };
-    setSalesToAddOrUpdateOnDb((prevSales) => {
+    setSalesToBeAddedOrUpdatedOnDb((prevSales) => {
       if (!prevSales) return [newSale];
 
       const index = prevSales.findIndex(
@@ -181,7 +170,6 @@ export default function SpreadSheet({ spreadSheet, setSpreadSheet, from, to, sal
     if (n <= 0 || n > arr.length) return [];
 
     const result: number[] = [];
-    console.log();
     for (let i = 0; i < arr.length; i += n) {
       let sum = 0;
       for (let j = i; j < i + n; j++) {
@@ -197,8 +185,9 @@ export default function SpreadSheet({ spreadSheet, setSpreadSheet, from, to, sal
   const usersLen = spreadSheet.header.length;
   // const numProducts = spreadSheet.header[0].products.length;
   const productsLen = spreadSheet.header[0] ? spreadSheet.header[0].products.length : 0;
-  const temp = new Array<number>(usersLen);
-  const sheetWidth = (productsLen * usersLen + 1) * 63;
+  const usersLenTemp = new Array<number>(usersLen);
+  const sheetWidth = (productsLen * usersLen + 1) * 55;
+  const cellWidth = sheetWidth / (productsLen * usersLen + 1);
   const users = spreadSheet.header.map((h) => h.user);
   const products = spreadSheet.header[0]?.products;
   const filteredRows = spreadSheet.rows.filter((row) => compareAsc(row.date, from) >= 0 && compareAsc(to, row.date) >= 0);
@@ -212,16 +201,13 @@ export default function SpreadSheet({ spreadSheet, setSpreadSheet, from, to, sal
   const totalPerUser = sumNConsecutiveNumbers(sumQuantityTimesPrice, productsLen);
   return (
     <>
-      {/* <div>{JSON.stringify(spreadSheet.header, null, "\t")}</div> */}
       {spreadSheet && products && products.length > 0 ? (
         <div className="max-w-full overflow-x-auto">
-          {/* <button onClick={handleAddSale}>Add dummy Sales</button>
-          <pre>{JSON.stringify(salesToAddOrUpdateOnDb, null, 4)}</pre> */}
+          <div>{sheetWidth}</div>
           <div className="bg-cyan-400" style={{ width: `${sheetWidth}px` }}>
             {/* <div className={`bg-cyan-400 w-[${sheetWidth}px]`}> */}
-
             {/* <div className={`bg-cyan-400 w-[${Math.round(sheetWidth)}px]`}> */}
-            <TopHeader />
+            <TopHeader cellWidth={20} />
             <div className="table-container overflow-y-auto max-h-[550px]" style={{ scrollbarGutter: "stable" }}>
               <table className="w-full border border-collapse table-fixed data-table">
                 <tbody>
@@ -241,48 +227,50 @@ export default function SpreadSheet({ spreadSheet, setSpreadSheet, from, to, sal
   );
 
   function Row({ rowIndex, row }: { rowIndex: number; row: SheetRow }) {
-    const bgColor = rowIndex % 2 === 0 ? "bg-gray-400" : "bg-gray-300";
-    const dayColor = isToday(row.date) ? "bg-blue-400" : bgColor;
-    // const borderColor = wor % products.length === 0 ? "border-r-2" : "";
+    let baseColor = rowIndex % 2 === 0 ? "bg-gray-400" : "bg-gray-300";
+    const dayColor = isToday(row.date) ? "bg-blue-400" : baseColor;
     return (
       <tr key={rowIndex}>
-        {/* date */}
-        {/* <td className={`text-[13px] ${row.date.getDay() === 1 ? "bg-red-200" : ""}`}>{format(row.date, "eee d MMM")}</td> */}
         <td className={`text-xs w-20 pl-1 ${dayColor} border-r-2`}>{format(row.date, "eee d MMM")}</td>
-        {/* sales */}
-        {row.sales.map((sale, colIndex) => (
-          <Celll key={colIndex} {...{ rowIndex, colIndex, bgColor, sale }} />
-        ))}
+        {row.sales.map((sale, colIndex) => {
+          let saleColor = sale.status == 1 ? (rowIndex % 2 === 0 ? "bg-red-400" : "bg-red-300") : baseColor;
+          return <Celll key={colIndex} {...{ rowIndex, colIndex, saleColor, sale }} />;
+        })}
       </tr>
     );
   }
 
-  function Celll({ rowIndex, colIndex, bgColor, sale }: { rowIndex: number; colIndex: number; bgColor: string; sale: CellType }) {
+  function Celll({ rowIndex, colIndex, saleColor, sale }: { rowIndex: number; colIndex: number; saleColor: string; sale: CellType }) {
     const borderColor = (colIndex + 1) % (products ? products.length : 0) === 0 ? " border-black" : "border-gray-300";
     // const borderColor = (colIndex + 1) % (products.length ?? 0) === 0 ? " border-black" : "border-gray-300";
     return (
-      <td key={colIndex} className={`border-r-2 p-1 ${bgColor} ${borderColor}`} onClick={() => handleCellClick(rowIndex, colIndex)}>
+      <td key={colIndex} className={`border-r-2 p-1 h-8 ${saleColor} ${borderColor}`} onClick={() => handleCellClick(rowIndex, colIndex)}>
         {activeCell.row === rowIndex && activeCell.col === colIndex ? (
           <input
-            className={`w-full ${bgColor} appearance-none `}
+            className={`w-full ${saleColor} appearance-none `}
             type="number"
             value={sale.quantity}
             onChange={(e) => handleCellValueChange(e, rowIndex, colIndex)}
             onKeyDown={handleKeyDown}
             autoFocus
+            disabled={sale.status == 1}
           />
         ) : (
-          <span>{sale.quantity}</span>
+          // <span>{sale.quantity}</span>
+          <span>{sale.quantity == 0 ? "" : sale.quantity}</span>
         )}
       </td>
     );
   }
 
-  function TopHeader() {
+  function TopHeader({ cellWidth }: { cellWidth: number }) {
     return (
       <div className="flex">
-        <div className="min-w-[80px]"></div> {/*filler */}
+        {/*filler */}
+        <div className="min-w-[80px]"></div>
+
         <div className="w-full pr-4">
+          {/*User names row */}
           <div className="flex ">
             {users.map((user, i) => (
               <div key={i} className="w-full p-1 border">
@@ -291,15 +279,14 @@ export default function SpreadSheet({ spreadSheet, setSpreadSheet, from, to, sal
             ))}
           </div>
           <div className="flex">
-            {[...temp].map((_, j) => (
-              <div key={j} className={`flex w-[${100 / users.length}%]`}>
-                {products?.map((product, i) => (
-                  <div key={i} className={`text-xs border w-[${100 / products.length}%]`}>
+            {[...usersLenTemp].map(
+              (_, j) =>
+                products?.map((product, i) => (
+                  <div key={i} className={`text-xs border w-full`}>
                     {product.name}
                   </div>
-                ))}
-              </div>
-            ))}
+                )),
+            )}
           </div>
         </div>
       </div>

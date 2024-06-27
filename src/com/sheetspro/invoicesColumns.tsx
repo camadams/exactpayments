@@ -20,43 +20,30 @@ type qwer = RouterOutputs["billCustomerResult"]["getAll"][number];
 
 export const columns: ColumnDef<qwer>[] = [
   {
-    accessorKey: "id",
-    header: "Id",
-  },
-  {
-    accessorKey: "firstName",
-    header: "Name",
-  },
-  {
-    accessorKey: "customerEmail",
-    header: "Email",
-  },
-  {
     accessorKey: "invoiceNumber",
     header: "Invoice Number",
   },
   {
-    accessorKey: "grandTotal",
-    header: "Total",
-    cell: ({ row }) => {
-      return <div>R{parseFloat(row.getValue("grandTotal"))}</div>;
+    accessorKey: "firstName",
+    header: ({ column }) => {
+      const columnFilterValue = column.getFilterValue();
+      return (
+        <>
+          <h1>Customer</h1>
+          <input
+            type="text"
+            value={(columnFilterValue ?? "") as string}
+            onChange={(e) => column.setFilterValue(e.target.value)}
+            placeholder={`Search...`}
+            className="border rounded w-36"
+          />
+        </>
+      );
     },
   },
   {
-    accessorKey: "billFromDate",
-    header: "Billed From",
-    cell: ({ row }) => {
-      const d: Date = row.getValue("billFromDate");
-      return <div>{format(d, "eee, d MMM")}</div>;
-    },
-  },
-  {
-    accessorKey: "billToDate",
-    header: "Billed To",
-    cell: ({ row }) => {
-      const d: Date = row.getValue("billToDate");
-      return <div>{format(d, "eee, d MMM")}</div>;
-    },
+    accessorKey: "customerEmail",
+    header: "Email",
   },
   {
     accessorKey: "billDate",
@@ -67,12 +54,40 @@ export const columns: ColumnDef<qwer>[] = [
     },
   },
   {
+    accessorKey: "billFromDate",
+    header: "From",
+    cell: ({ row }) => {
+      const d: Date = row.getValue("billFromDate");
+      return <div>{format(d, "eee, d MMM")}</div>;
+    },
+  },
+  {
+    accessorKey: "billToDate",
+    header: "To",
+    cell: ({ row }) => {
+      const d: Date = row.getValue("billToDate");
+      return <div>{format(d, "eee, d MMM")}</div>;
+    },
+  },
+  {
+    accessorKey: "grandTotal",
+    header: "Grand Total",
+    cell: ({ row }) => {
+      return <div>R{parseFloat(row.getValue("grandTotal"))}</div>;
+    },
+  },
+  {
     accessorKey: "actions",
     header: "Open",
     cell: ({ row }) => {
       const invoiceNumber = row.original.invoiceNumber;
+      console.log({ invoiceNumber });
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
-      return <Link href={`/invoices/${invoiceNumber}`}>open</Link>;
+      return (
+        <Link className="shadow-md btn shadow-green-500" href={`/invoices/${invoiceNumber}`}>
+          open
+        </Link>
+      );
     },
   },
 ];

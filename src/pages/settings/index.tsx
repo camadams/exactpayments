@@ -15,8 +15,8 @@ import { api } from "~/utils/api";
 export default function App() {
   return (
     <div className="pt-4">
-      <div className="flex w-full justify-center items-center mb-2">
-        <Link href="/test" className=" bg-yellow-200 p-1 rounded-md hover:bg-slate-400">
+      <div className="flex items-center justify-center w-full mb-2">
+        <Link href="/dashboard" className="p-1 bg-yellow-200 rounded-md hover:bg-slate-400">
           Back
         </Link>
       </div>

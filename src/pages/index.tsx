@@ -31,6 +31,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { LoadingSpinner } from "~/components/loading";
 import { AuthShowcase } from "~/components/AuthShowcase";
+import { redirect } from "next/dist/server/api-utils";
+import { useRouter } from "next/router";
 
 const navigation = [
   { name: "Features", href: "#" },
@@ -39,9 +41,23 @@ const navigation = [
 
 export default function Example() {
   const { data: sessionData, status } = useSession();
+  const router = useRouter();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+  if (sessionData?.user) {
+    router
+      .replace("/dashboard")
+      .then((x) => console.log(x))
+      .catch((x) => alert(x)); // Redirect to dashboard if user is logged in
+  }
+  if (sessionData?.user) {
+    return (
+      <>
+        <LoadingSpinner />
+        <h1>Redirecting to dashboard</h1>
+      </>
+    );
+  }
   return (
     <div className="min-h-screen bg-white">
       <header className="absolute inset-x-0 top-0 z-50">
@@ -50,7 +66,7 @@ export default function Example() {
             {/* <a href="#" className="-m-1.5 p-1.5"> */}
             {/* <img className="w-auto h-8" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="" /> */}
             {/* <h1>Logo</h1> */}
-            <Image src="/public/a.png" alt="Hfdfi" width={32} height={32} />
+            {/* <Image src="/public/a.png" alt="Hfdfi" width={32} height={32} /> */}
             {/* </a> */}
           </div>
           <div className="flex lg:hidden">
@@ -74,18 +90,13 @@ export default function Example() {
               Log in <span aria-hidden="true">&rarr;</span>
             </a> */}
             {/* {sessionData ? <Link href="/test" > Dashboard <Link/> : <div>"Sign in"</div> } */}
-            {status === "loading" ? (
-              <LoadingSpinner />
-            ) : sessionData ? (
-              <Link
-                href="/test"
-                className="px-2 py-1 text-sm text-white bg-blue-600 rounded-md shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
-                Dashboard
-              </Link>
-            ) : (
-              <AuthShowcase />
-            )}
+            <button
+              className="p-3 font-semibold no-underline transition rounded-full bg-white/10 hover:bg-slate-300/20"
+              onClick={sessionData ? () => void signOut() : () => void signIn("credentials", { callbackUrl: "/dashboard" })}
+            >
+              {sessionData ? "Sign out" : "Sign in"}
+            </button>
+            {sessionData?.user.name}
           </div>
         </nav>
         <Dialog as="div" className="lg:hidden" open={mobileMenuOpen} onClose={setMobileMenuOpen}>

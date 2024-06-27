@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
 import { format } from "date-fns";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { type xBillCustomerResult } from "~/com/sheetspro/BillCustomerResult";
+import { TBillCustomerResult, type BillCustomerResult } from "~/com/sheetspro/BillCustomerResult";
 import { InvoicesPreview } from "~/components/InvoicesPreview";
 import { LoadingSpinner } from "~/components/loading";
 import { addTimezoneOffset } from "~/lib/utils";
@@ -13,7 +12,7 @@ export default function BillPage() {
   const router = useRouter();
   const [hasReceivedBill, setHasReceivedBill] = useState(false);
   const [hasStartedBill, setHasStartedBill] = useState(false);
-  const [billResults, setBillResults] = useState<xBillCustomerResult[] | undefined>(undefined);
+  const [billResults, setBillResults] = useState<TBillCustomerResult[] | undefined>(undefined);
 
   const fromQ = router.query.from as string;
   const toQ = router.query.to as string;
@@ -23,7 +22,10 @@ export default function BillPage() {
   const from = addTimezoneOffset(parseDateFromString(fromQ));
   const to = addTimezoneOffset(parseDateFromString(toQ));
 
+  // console.log({ from, to });
+
   const { data: freshBillResults, mutate: doBill } = api.sale.billDateInput.useMutation();
+  const yaya = api.sale.sendEmail.useMutation();
 
   if (!hasStartedBill && from && to && !isNaN(from.getTime()) && !isNaN(to.getTime())) {
     doBill({ from, to });
@@ -31,8 +33,21 @@ export default function BillPage() {
   }
 
   if (!hasReceivedBill && freshBillResults) {
+    console.log({ freshBillResults });
     setBillResults(freshBillResults);
     setHasReceivedBill(true);
+  }
+
+  function handleSendEmail(billResults: TBillCustomerResult[]) {
+    const confirmed = window.confirm(
+      `You are about to send ${billResults.filter((br) => br.grandTotal != 0).length} email(s), each to a different customer. Are you sure?`,
+    );
+    if (confirmed) {
+      const asdf = yaya.mutate(billResults);
+      // sendEmail(billResults)
+      //   .then((x) => console.log(x))
+      //   .catch((x) => alert(x));
+    }
   }
 
   return (
@@ -54,20 +69,16 @@ export default function BillPage() {
             <InvoicesPreview billResults={billResults} />
             <button className="btn" onClick={() => handleSendEmail(billResults)}>
               send {billResults.filter((br) => br.grandTotal != 0).length} emails
+              <div className="inline-block">{yaya.isLoading && <LoadingSpinner />}</div>
             </button>
+            {/* <div>id: {xx?.data.id}</div> */}
+            {yaya.data}
+            <pre>{JSON.stringify(yaya, null, 4)}</pre>x
           </>
         )}
       </div>
     </div>
   );
-}
-
-async function handleSendEmail(billResult: xBillCustomerResult[]) {
-  const confirmed = window.confirm("You are about to send 3 emails, each to a different customer. Are you sure?");
-  if (confirmed) {
-    await sendEmail(billResult);
-  } else {
-  }
 }
 
 function parseDateFromString(dateString: string): Date {

@@ -29,6 +29,16 @@ export const productRouter = createTRPCRouter({
       });
     }),
 
+  updateProduct: publicProcedure
+    .input(z.object({ id: z.number(), name: z.string(), unitPrice: z.number() }))
+    .mutation(({ ctx, input }) => {
+      const { id, name, unitPrice } = input;
+      return ctx.prisma.product.update({
+        where: { id },
+        data: { name, unitPrice }
+      });
+    }),
+
   getForMonth: publicProcedure.query(({ ctx }) => {
     const a = ctx.prisma.example.findMany();
     return a;

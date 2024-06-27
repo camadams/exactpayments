@@ -7,7 +7,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const a = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
         const data = await resend.emails.send({
-            from: 'Acme <onboarding@resend.dev>',
+            from: 'Acmasdfasdfe <sadfasdf@erdsf.dev>',
             to: ['camgadams@gmail.com'],
             subject: 'My route',
             html: '<h1>hi</h1>',

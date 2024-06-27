@@ -1,9 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Resend } from 'resend';
 import type { CreateEmailOptions } from 'resend/build/src/emails/interfaces';
-import { type BillCustomerResult, type xBillCustomerResult } from '~/com/sheetspro/BillCustomerResult';
+import { type BillCustomerResult } from '~/com/sheetspro/BillCustomerResult';
 import { prisma } from '~/server/db';
-import { api } from '~/utils/api';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -23,7 +22,6 @@ const a = async (req: NextApiRequest, res: NextApiResponse) => {
     //     console.log('File contents as Buffer:', data);
     // });
 
-    const xbillResults = req.body as xBillCustomerResult[];
     const billResults = req.body as BillCustomerResult[];
 
     if (!billResults) {
@@ -57,7 +55,7 @@ const a = async (req: NextApiRequest, res: NextApiResponse) => {
                 },
             }
         })
-        console.log({ bb })
+        // console.log({ bb })
         // const y = await prisma.billCustomerResult.create({ data: {} })
         // const { data: x, mutate: createBillCustomerResult } = api.billCustomerResult.create.useMutation();
         // createBillCustomerResult(billResult);

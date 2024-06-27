@@ -10,9 +10,9 @@ export default function Invoice() {
   if (!data) return <LoadingSpinner />;
   return (
     <div className="container py-4 mx-auto">
-      {/* {data && <InvoicesPreview billResults={[data.billResult]} />} */}
-      <h1 className="text-lg">{data?.billResult.invoiceNumber}</h1>
-      <div className="overflow-x-auto">
+      {/* {JSON.stringify(data.invoiceLines, null, 4)} */}
+      {data && <InvoicesPreview billResults={[{ ...data.billResult, invoiceLines: data.invoiceLines }]} showEmailTemplatee={true} />}
+      {/* <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -33,7 +33,7 @@ export default function Invoice() {
             ))}
           </tbody>
         </table>
-      </div>
+      </div> */}
     </div>
   );
 }
